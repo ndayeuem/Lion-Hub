@@ -2,12 +2,27 @@ if game:GetService("CoreGui"):FindFirstChild('Lion Hub Kaitun') then
     game:GetService("CoreGui"):FindFirstChild('Lion Hub Kaitun'):Destroy()
 end
 
+-- Toggle Button UI
+local ToggleGui = Instance.new("ScreenGui")
+ToggleGui.Name = "LionHubToggle"
+ToggleGui.Parent = game:GetService("CoreGui")
+ToggleGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+local ToggleBtn = Instance.new("ImageButton")
+ToggleBtn.Name = "ToggleBtn"
+ToggleBtn.Parent = ToggleGui
+ToggleBtn.Size = UDim2.new(0, 40, 0, 40)
+ToggleBtn.Position = UDim2.new(1, -60, 0, 60)
+ToggleBtn.BackgroundTransparency = 1
+ToggleBtn.Image = "rbxassetid://17260696651" -- icon giống switch
+ToggleBtn.ImageColor3 = Color3.fromRGB(0, 150, 255)
+
+-- Main UI
 local LionHub = Instance.new("ScreenGui")
 LionHub.Name = "Lion Hub Kaitun"
 LionHub.Parent = game:GetService("CoreGui")
 LionHub.Enabled = true
 
--- Main Frame (nền trắng, viền xanh dương nhạt)
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
 MainFrame.Parent = LionHub
@@ -192,3 +207,10 @@ Footer.Font = Enum.Font.Gotham
 Footer.TextSize = 13
 Footer.TextColor3 = Color3.fromRGB(0, 150, 255)
 Footer.TextXAlignment = Enum.TextXAlignment.Center
+
+-- Toggle logic
+local visible = true
+ToggleBtn.MouseButton1Click:Connect(function()
+    visible = not visible
+    LionHub.Enabled = visible
+end)
