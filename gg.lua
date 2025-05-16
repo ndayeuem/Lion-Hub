@@ -5,12 +5,12 @@ local LocalPlayer = Players.LocalPlayer
 -- Configuration
 local Config = {
     UIName = "Lion Hub",
-    BackgroundColor = Color3.fromRGB(15, 15, 20),  -- Dark blue-black background
+    BackgroundColor = Color3.fromRGB(15, 15, 20),
     BackgroundTransparency = 0.2,
     TextColor = Color3.fromRGB(255, 255, 255),
-    AccentColor = Color3.fromRGB(0, 150, 255),     -- Bright blue accent
-    CheckmarkColor = Color3.fromRGB(50, 255, 50),  -- Bright green for owned items
-    MissingItemColor = Color3.fromRGB(255, 70, 70),-- Bright red for missing items
+    AccentColor = Color3.fromRGB(0, 150, 255),
+    CheckmarkColor = Color3.fromRGB(50, 255, 50),
+    MissingItemColor = Color3.fromRGB(255, 70, 70),
     Font = Enum.Font.GothamBold,
     RefreshRate = 1,
     CornerRadius = 12,
@@ -68,8 +68,6 @@ end
 
 -- Create fixed UI with decorations
 function LionHub:CreateUI()
-    print("Creating enhanced fixed UI...")
-    
     -- Clean up existing UI
     for _, parent in ipairs({game.CoreGui, LocalPlayer.PlayerGui}) do
         local existingUI = parent:FindFirstChild("LionHubUI")
@@ -85,10 +83,7 @@ function LionHub:CreateUI()
     -- Set parent with fallback
     local parentSet = pcall(function() GUI.Parent = game.CoreGui end)
     if not parentSet then
-        GUI.Parent = LocalPlayer.PlayerGui
-        print("Using PlayerGui (CoreGui inaccessible)")
-    else
-        print("Using CoreGui")
+        GUI.Parent = LocalPlayer:WaitForChild("PlayerGui")
     end
     
     -- Main container frame (fixed position)
@@ -96,8 +91,8 @@ function LionHub:CreateUI()
     mainFrame.Name = "MainFrame"
     mainFrame.BackgroundColor3 = Config.BackgroundColor
     mainFrame.BackgroundTransparency = Config.BackgroundTransparency
-    mainFrame.Size = UDim2.new(0, 650, 0, 220)  -- Slightly larger for decorations
-    mainFrame.Position = UDim2.new(0.02, 0, 0.02, 0)  -- Fixed position top-left
+    mainFrame.Size = UDim2.new(0, 650, 0, 220)
+    mainFrame.Position = UDim2.new(0.02, 0, 0.02, 0)
     mainFrame.ClipsDescendants = true
     mainFrame.Parent = GUI
     
@@ -126,16 +121,6 @@ function LionHub:CreateUI()
     local titleCorner = Instance.new("UICorner")
     titleCorner.CornerRadius = UDim.new(0, Config.CornerRadius)
     titleCorner.Parent = titleBar
-    
-    -- Lion emblem decoration
-    local emblem = Instance.new("ImageLabel")
-    emblem.Name = "Emblem"
-    emblem.BackgroundTransparency = 1
-    emblem.Size = UDim2.new(0, 24, 0, 24)
-    emblem.Position = UDim2.new(0, 8, 0, 3)
-    emblem.Image = "rbxassetid://123456789" -- Replace with your emblem image ID
-    emblem.ImageColor3 = Color3.fromRGB(255, 255, 255)
-    emblem.Parent = titleBar
     
     -- Title label with glow effect
     local titleLabel = Instance.new("TextLabel")
@@ -172,104 +157,50 @@ function LionHub:CreateUI()
     gridLayout.SortOrder = Enum.SortOrder.LayoutOrder
     gridLayout.Parent = columnsFrame
     
-    -- Left column: Items with decorative header
-    local itemsColumn = self:CreateColumn(columnsFrame, "Vật phẩm cần lấy", true)
+    -- Left column: Items
+    local itemsColumn = Instance.new("Frame")
+    itemsColumn.Name = "ItemsColumn"
+    itemsColumn.BackgroundTransparency = 1
+    itemsColumn.Parent = columnsFrame
     
-    -- Middle column: Player Status with decorative header
-    local playerColumn = self:CreateColumn(columnsFrame, "Trạng thái người chơi", false)
+    local itemsHeader = Instance.new("Frame")
+    itemsHeader.Name = "Header"
+    itemsHeader.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    itemsHeader.BackgroundTransparency = 0.7
+    itemsHeader.Size = UDim2.new(1, 0, 0, 25)
+    itemsHeader.Parent = itemsColumn
     
-    -- Right column: Quest Status with decorative header
-    local questColumn = self:CreateColumn(columnsFrame, "Trạng thái nhiệm vụ", false)
+    local itemsHeaderLabel = Instance.new("TextLabel")
+    itemsHeaderLabel.Name = "HeaderLabel"
+    itemsHeaderLabel.BackgroundTransparency = 1
+    itemsHeaderLabel.Size = UDim2.new(1, -10, 1, 0)
+    itemsHeaderLabel.Position = UDim2.new(0, 10, 0, 0)
+    itemsHeaderLabel.Font = Config.Font
+    itemsHeaderLabel.Text = "Vật phẩm cần lấy"
+    itemsHeaderLabel.TextColor3 = Config.AccentColor
+    itemsHeaderLabel.TextSize = 14
+    itemsHeaderLabel.TextXAlignment = Enum.TextXAlignment.Left
+    itemsHeaderLabel.Parent = itemsHeader
     
-    -- Add separator lines between columns
-    self:AddColumnSeparators(columnsFrame)
+    local itemsContent = Instance.new("Frame")
+    itemsContent.Name = "Content"
+    itemsContent.BackgroundTransparency = 1
+    itemsContent.Size = UDim2.new(1, 0, 1, -30)
+    itemsContent.Position = UDim2.new(0, 0, 0, 30)
+    itemsContent.Parent = itemsColumn
     
-    -- Initialize content for each column
-    self:InitializeItemsColumn(itemsColumn)
-    self:InitializePlayerColumn(playerColumn)
-    self:InitializeQuestColumn(questColumn)
-end
-
--- Create a standardized column with header
-function LionHub:CreateColumn(parent, title, isItemsColumn)
-    local column = Instance.new("Frame")
-    column.Name = title:gsub(" ", "") .. "Column"
-    column.BackgroundTransparency = 1
-    column.Parent = parent
+    local itemsLayout = Instance.new("UIListLayout")
+    itemsLayout.Padding = UDim.new(0, 5)
+    itemsLayout.Parent = itemsContent
     
-    -- Column header with decoration
-    local header = Instance.new("Frame")
-    header.Name = "Header"
-    header.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-    header.BackgroundTransparency = 0.7
-    header.Size = UDim2.new(1, 0, 0, 25)
-    header.Parent = column
-    
-    local headerCorner = Instance.new("UICorner")
-    headerCorner.CornerRadius = UDim.new(0, 6)
-    headerCorner.Parent = header
-    
-    local headerLabel = Instance.new("TextLabel")
-    headerLabel.Name = "HeaderLabel"
-    headerLabel.BackgroundTransparency = 1
-    headerLabel.Size = UDim2.new(1, -10, 1, 0)
-    headerLabel.Position = UDim2.new(0, 10, 0, 0)
-    headerLabel.Font = Config.Font
-    headerLabel.Text = title
-    headerLabel.TextColor3 = isItemsColumn and Config.AccentColor or Config.TextColor
-    headerLabel.TextSize = 14
-    headerLabel.TextXAlignment = Enum.TextXAlignment.Left
-    headerLabel.Parent = header
-    
-    -- Content frame
-    local content = Instance.new("Frame")
-    content.Name = "Content"
-    content.BackgroundTransparency = 1
-    content.Size = UDim2.new(1, 0, 1, -30)
-    content.Position = UDim2.new(0, 0, 0, 30)
-    content.Parent = column
-    
-    local contentLayout = Instance.new("UIListLayout")
-    contentLayout.Padding = UDim.new(0, 5)
-    contentLayout.Parent = content
-    
-    return column
-end
-
--- Add decorative separators between columns
-function LionHub:AddColumnSeparators(columnsFrame)
-    for i = 1, 2 do
-        local separator = Instance.new("Frame")
-        separator.Name = "Separator_" .. i
-        separator.BackgroundColor3 = Config.AccentColor
-        separator.BackgroundTransparency = 0.8
-        separator.BorderSizePixel = 0
-        separator.Size = UDim2.new(0, 1, 0.9, 0)
-        separator.Position = UDim2.new(0.33 * i, -1, 0.05, 0)
-        separator.ZIndex = 2
-        separator.Parent = columnsFrame
-        
-        -- Add glow effect
-        local glow = Instance.new("UIStroke")
-        glow.Color = Config.AccentColor
-        glow.Thickness = 2
-        glow.Transparency = 0.5
-        glow.Parent = separator
-    end
-end
-
--- Initialize items column content
-function LionHub:InitializeItemsColumn(column)
-    local content = column.Content
-    
-    -- Create item entries with decorative elements
+    -- Create item entries
     for _, itemName in ipairs(PremiumItems) do
         local itemFrame = Instance.new("Frame")
         itemFrame.Name = "Item_" .. itemName:gsub(" ", "_")
         itemFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
         itemFrame.BackgroundTransparency = 0.7
         itemFrame.Size = UDim2.new(1, 0, 0, 30)
-        itemFrame.Parent = content
+        itemFrame.Parent = itemsContent
         ApplyStyle(itemFrame, Config.AccentColor, 1, 6)
         
         local checkBox = Instance.new("Frame")
@@ -303,23 +234,45 @@ function LionHub:InitializeItemsColumn(column)
         itemLabel.TextSize = 14
         itemLabel.TextXAlignment = Enum.TextXAlignment.Left
         itemLabel.Parent = itemFrame
-        
-        -- Add hover effect
-        itemFrame.MouseEnter:Connect(function()
-            itemFrame.BackgroundTransparency = 0.6
-        end)
-        
-        itemFrame.MouseLeave:Connect(function()
-            itemFrame.BackgroundTransparency = 0.7
-        end)
     end
-end
-
--- Initialize player column content
-function LionHub:InitializePlayerColumn(column)
-    local content = column.Content
     
-    -- Player stats labels with decorative backgrounds
+    -- Middle column: Player Status
+    local playerColumn = Instance.new("Frame")
+    playerColumn.Name = "PlayerColumn"
+    playerColumn.BackgroundTransparency = 1
+    playerColumn.Parent = columnsFrame
+    
+    local playerHeader = Instance.new("Frame")
+    playerHeader.Name = "Header"
+    playerHeader.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    playerHeader.BackgroundTransparency = 0.7
+    playerHeader.Size = UDim2.new(1, 0, 0, 25)
+    playerHeader.Parent = playerColumn
+    
+    local playerHeaderLabel = Instance.new("TextLabel")
+    playerHeaderLabel.Name = "HeaderLabel"
+    playerHeaderLabel.BackgroundTransparency = 1
+    playerHeaderLabel.Size = UDim2.new(1, -10, 1, 0)
+    playerHeaderLabel.Position = UDim2.new(0, 10, 0, 0)
+    playerHeaderLabel.Font = Config.Font
+    playerHeaderLabel.Text = "Trạng thái người chơi"
+    playerHeaderLabel.TextColor3 = Config.TextColor
+    playerHeaderLabel.TextSize = 14
+    playerHeaderLabel.TextXAlignment = Enum.TextXAlignment.Left
+    playerHeaderLabel.Parent = playerHeader
+    
+    local playerContent = Instance.new("Frame")
+    playerContent.Name = "Content"
+    playerContent.BackgroundTransparency = 1
+    playerContent.Size = UDim2.new(1, 0, 1, -30)
+    playerContent.Position = UDim2.new(0, 0, 0, 30)
+    playerContent.Parent = playerColumn
+    
+    local playerLayout = Instance.new("UIListLayout")
+    playerLayout.Padding = UDim.new(0, 5)
+    playerLayout.Parent = playerContent
+    
+    -- Player stats labels
     local playerLabels = {
         {Name = "PlayerName", Text = "Tên: "},
         {Name = "Level", Text = "Cấp độ: "},
@@ -334,7 +287,7 @@ function LionHub:InitializePlayerColumn(column)
         statFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
         statFrame.BackgroundTransparency = 0.8
         statFrame.Size = UDim2.new(1, 0, 0, 25)
-        statFrame.Parent = content
+        statFrame.Parent = playerContent
         ApplyStyle(statFrame, nil, 1, 6)
         
         local statLabel = Instance.new("TextLabel")
@@ -349,13 +302,44 @@ function LionHub:InitializePlayerColumn(column)
         statLabel.TextXAlignment = Enum.TextXAlignment.Left
         statLabel.Parent = statFrame
     end
-end
-
--- Initialize quest column content
-function LionHub:InitializeQuestColumn(column)
-    local content = column.Content
     
-    -- Quest stats labels with decorative backgrounds
+    -- Right column: Quest Status
+    local questColumn = Instance.new("Frame")
+    questColumn.Name = "QuestColumn"
+    questColumn.BackgroundTransparency = 1
+    questColumn.Parent = columnsFrame
+    
+    local questHeader = Instance.new("Frame")
+    questHeader.Name = "Header"
+    questHeader.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    questHeader.BackgroundTransparency = 0.7
+    questHeader.Size = UDim2.new(1, 0, 0, 25)
+    questHeader.Parent = questColumn
+    
+    local questHeaderLabel = Instance.new("TextLabel")
+    questHeaderLabel.Name = "HeaderLabel"
+    questHeaderLabel.BackgroundTransparency = 1
+    questHeaderLabel.Size = UDim2.new(1, -10, 1, 0)
+    questHeaderLabel.Position = UDim2.new(0, 10, 0, 0)
+    questHeaderLabel.Font = Config.Font
+    questHeaderLabel.Text = "Trạng thái nhiệm vụ"
+    questHeaderLabel.TextColor3 = Config.TextColor
+    questHeaderLabel.TextSize = 14
+    questHeaderLabel.TextXAlignment = Enum.TextXAlignment.Left
+    questHeaderLabel.Parent = questHeader
+    
+    local questContent = Instance.new("Frame")
+    questContent.Name = "Content"
+    questContent.BackgroundTransparency = 1
+    questContent.Size = UDim2.new(1, 0, 1, -30)
+    questContent.Position = UDim2.new(0, 0, 0, 30)
+    questContent.Parent = questColumn
+    
+    local questLayout = Instance.new("UIListLayout")
+    questLayout.Padding = UDim.new(0, 5)
+    questLayout.Parent = questContent
+    
+    -- Quest stats labels
     local questLabels = {
         {Name = "QuestName", Text = "Nhiệm vụ: "},
         {Name = "Objective", Text = "Mục tiêu: "},
@@ -368,7 +352,7 @@ function LionHub:InitializeQuestColumn(column)
         statFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
         statFrame.BackgroundTransparency = 0.8
         statFrame.Size = UDim2.new(1, 0, 0, 25)
-        statFrame.Parent = content
+        statFrame.Parent = questContent
         ApplyStyle(statFrame, nil, 1, 6)
         
         local statLabel = Instance.new("TextLabel")
@@ -384,11 +368,176 @@ function LionHub:InitializeQuestColumn(column)
         statLabel.TextWrapped = true
         statLabel.Parent = statFrame
     end
+    
+    -- Add separator lines between columns
+    for i = 1, 2 do
+        local separator = Instance.new("Frame")
+        separator.Name = "Separator_" .. i
+        separator.BackgroundColor3 = Config.AccentColor
+        separator.BackgroundTransparency = 0.8
+        separator.BorderSizePixel = 0
+        separator.Size = UDim2.new(0, 1, 0.9, 0)
+        separator.Position = UDim2.new(0.33 * i, -1, 0.05, 0)
+        separator.ZIndex = 2
+        separator.Parent = columnsFrame
+        
+        local glow = Instance.new("UIStroke")
+        glow.Color = Config.AccentColor
+        glow.Thickness = 2
+        glow.Transparency = 0.5
+        glow.Parent = separator
+    end
 end
 
--- [Rest of the code remains the same as previous version for functionality]
--- (GetCurrentQuest, UpdateQuestInfo, UpdatePlayerInfo, UpdatePremiumItems, 
--- HasPremiumItem, FormatNumber, Start functions)
+-- Fetch current quest
+function LionHub:GetCurrentQuest()
+    local data = LocalPlayer:FindFirstChild("Data")
+    local questData = {
+        QuestName = "Không có nhiệm vụ",
+        Objective = "N/A",
+        Status = "N/A"
+    }
+    
+    if data then
+        local questFolder = data:FindFirstChild("Quests")
+        if questFolder and #questFolder:GetChildren() > 0 then
+            local activeQuest = questFolder:GetChildren()[1]
+            questData.QuestName = activeQuest.Name or "Nhiệm vụ không xác định"
+            questData.Objective = activeQuest:FindFirstChild("Objective") and activeQuest.Objective.Value or "Hoàn thành mục tiêu"
+            questData.Status = activeQuest:FindFirstChild("Completed") and activeQuest.Completed.Value and "Hoàn thành" or "Đang thực hiện"
+        end
+    end
+    
+    return questData
+end
+
+-- Update quest info
+function LionHub:UpdateQuestInfo()
+    if not GUI or not GUI:FindFirstChild("MainFrame") then return end
+    
+    local questContent = GUI.MainFrame.ColumnsFrame.QuestColumn.Content
+    local questData = self:GetCurrentQuest()
+    
+    local stats = {
+        QuestName = questData.QuestName,
+        Objective = questData.Objective,
+        Status = questData.Status
+    }
+    
+    for statName, value in pairs(stats) do
+        local frame = questContent:FindFirstChild(statName .. "Frame")
+        if frame then
+            local label = frame:FindFirstChild(statName)
+            if label then label.Text = label.Text:match("^.-: ") .. value end
+        end
+    end
+end
+
+-- Update player info
+function LionHub:UpdatePlayerInfo()
+    if not GUI or not GUI:FindFirstChild("MainFrame") then return end
+    
+    local playerContent = GUI.MainFrame.ColumnsFrame.PlayerColumn.Content
+    local data = LocalPlayer:FindFirstChild("Data")
+    
+    local stats = {
+        PlayerName = LocalPlayer.Name,
+        Level = data and data:FindFirstChild("Level") and data.Level.Value or "N/A",
+        Beli = data and data:FindFirstChild("Beli") and self:FormatNumber(data.Beli.Value) or "0",
+        Fragments = data and data:FindFirstChild("Fragments") and self:FormatNumber(data.Fragments.Value) or "0",
+        Race = data and data:FindFirstChild("Race") and data.Race.Value or "Human"
+    }
+    
+    for statName, value in pairs(stats) do
+        local frame = playerContent:FindFirstChild(statName .. "Frame")
+        if frame then
+            local label = frame:FindFirstChild(statName)
+            if label then label.Text = label.Text:match("^.-: ") .. value end
+        end
+    end
+    
+    self:UpdatePremiumItems()
+end
+
+-- Update premium items
+function LionHub:UpdatePremiumItems()
+    if not GUI or not GUI:FindFirstChild("MainFrame") then return end
+    
+    local itemsContent = GUI.MainFrame.ColumnsFrame.ItemsColumn.Content
+    for _, itemName in ipairs(PremiumItems) do
+        local itemFrame = itemsContent:FindFirstChild("Item_" .. itemName:gsub(" ", "_"))
+        if itemFrame then
+            local checkmark = itemFrame.CheckBox.Checkmark
+            local itemLabel = itemFrame:FindFirstChild("ItemLabel")
+            local hasItem = self:HasPremiumItem(itemName)
+            checkmark.Visible = hasItem
+            if itemLabel then
+                itemLabel.TextColor3 = hasItem and Config.CheckmarkColor or Config.MissingItemColor
+            end
+        end
+    end
+end
+
+-- Check for premium item
+function LionHub:HasPremiumItem(itemName)
+    -- Check backpack
+    local backpack = LocalPlayer:FindFirstChild("Backpack")
+    if backpack then
+        for _, item in ipairs(backpack:GetChildren()) do
+            if item.Name == itemName then return true end
+        end
+    end
+    
+    -- Check character
+    local character = LocalPlayer.Character
+    if character then
+        for _, item in ipairs(character:GetChildren()) do
+            if item.Name == itemName then return true end
+        end
+    end
+    
+    -- Check data inventory
+    local data = LocalPlayer:FindFirstChild("Data")
+    if data and data:FindFirstChild("Inventory") then
+        for _, item in ipairs(data.Inventory:GetChildren()) do
+            if item.Name == itemName then return true end
+        end
+    end
+    
+    return false
+end
+
+-- Format large numbers
+function LionHub:FormatNumber(number)
+    number = tonumber(number) or 0
+    if number >= 1e9 then return string.format("%.2fB", number / 1e9) end
+    if number >= 1e6 then return string.format("%.2fM", number / 1e6) end
+    if number >= 1e3 then return string.format("%.2fK", number / 1e3) end
+    return tostring(number)
+end
+
+-- Start Lion Hub
+function LionHub:Start()
+    local success, err = pcall(function()
+        self:CreateUI()
+        
+        -- Initial update
+        self:UpdatePlayerInfo()
+        self:UpdateQuestInfo()
+        
+        -- Set up periodic updates
+        spawn(function()
+            while wait(Config.RefreshRate) do
+                self:UpdatePlayerInfo()
+                self:UpdateQuestInfo()
+            end
+        end)
+    end)
+    
+    if not success then
+        warn("Lion Hub Error: " .. tostring(err))
+    end
+end
 
 -- Initialize
 LionHub:Start()
