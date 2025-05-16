@@ -1,42 +1,43 @@
-if game:GetService("CoreGui"):FindFirstChild('Lion Hub') then
-    game:GetService("CoreGui"):FindFirstChild('Lion Hub'):Destroy()
+if game:GetService("CoreGui"):FindFirstChild('Lion Hub Kaitun') then
+    game:GetService("CoreGui"):FindFirstChild('Lion Hub Kaitun'):Destroy()
 end
 
-local Lion_Hub = Instance.new("ScreenGui")
-Lion_Hub.Name = "Lion Hub"
-Lion_Hub.Parent = game:GetService("CoreGui")
-Lion_Hub.Enabled = true
+local LionHub = Instance.new("ScreenGui")
+LionHub.Name = "Lion Hub Kaitun"
+LionHub.Parent = game:GetService("CoreGui")
+LionHub.Enabled = true
 
--- Nền trắng
+-- Main Frame (nền trắng)
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Parent = Lion_Hub
-MainFrame.Size = UDim2.new(0.3, 0, 0.5, 0)
-MainFrame.Position = UDim2.new(0.35, 0, 0.25, 0)
+MainFrame.Parent = LionHub
+MainFrame.Size = UDim2.new(0, 420, 0, 400)
+MainFrame.Position = UDim2.new(0.5, -210, 0.5, -200)
 MainFrame.BackgroundColor3 = Color3.fromRGB(255,255,255)
 MainFrame.BackgroundTransparency = 0
+MainFrame.BorderSizePixel = 0
 
 -- Header
 local Header = Instance.new("TextLabel")
 Header.Parent = MainFrame
-Header.Size = UDim2.new(1, 0, 0, 40)
+Header.Size = UDim2.new(1, 0, 0, 44)
 Header.Position = UDim2.new(0, 0, 0, 0)
 Header.BackgroundTransparency = 1
 Header.Text = "Lion Hub Kaitun"
 Header.Font = Enum.Font.GothamBold
-Header.TextSize = 22
+Header.TextSize = 26
 Header.TextColor3 = Color3.fromRGB(0, 150, 255)
 
--- Thêm phần check item
+-- Check Item Section
 local ItemsFrame = Instance.new("Frame")
 ItemsFrame.Parent = MainFrame
-ItemsFrame.Size = UDim2.new(1, -20, 0, 150)
-ItemsFrame.Position = UDim2.new(0, 10, 0, 50)
+ItemsFrame.Size = UDim2.new(1, -40, 0, 160)
+ItemsFrame.Position = UDim2.new(0, 20, 0, 60)
 ItemsFrame.BackgroundTransparency = 1
 
 local ItemsLayout = Instance.new("UIListLayout")
 ItemsLayout.Parent = ItemsFrame
-ItemsLayout.Padding = UDim.new(0, 8)
+ItemsLayout.Padding = UDim.new(0, 10)
 
 local PremiumItems = {
     ["God Human"] = {"God Human", "GodHuman"},
@@ -125,11 +126,11 @@ for mainItemName in pairs(PremiumItems) do
     itemLabel.Parent = itemFrame
 end
 
--- Thêm các phần status khác nếu muốn (ví dụ: tên, world, race, fruit...)
+-- Status Section
 local StatusFrame = Instance.new("Frame")
 StatusFrame.Parent = MainFrame
-StatusFrame.Size = UDim2.new(1, -20, 0, 120)
-StatusFrame.Position = UDim2.new(0, 10, 0, 210)
+StatusFrame.Size = UDim2.new(1, -40, 0, 120)
+StatusFrame.Position = UDim2.new(0, 20, 0, 240)
 StatusFrame.BackgroundTransparency = 1
 
 local StatusLayout = Instance.new("UIListLayout")
@@ -137,14 +138,14 @@ StatusLayout.Parent = StatusFrame
 StatusLayout.Padding = UDim.new(0, 10)
 
 local player = game.Players.LocalPlayer
-local world = "Unknown"
-if game.PlaceId == 2753915549 then world = "Old World"
-elseif game.PlaceId == 4442272183 then world = "New World"
-elseif game.PlaceId == 7449423635 then world = "Third World" end
+local sea = "Unknown"
+if game.PlaceId == 2753915549 then sea = "Sea 1"
+elseif game.PlaceId == 4442272183 then sea = "Sea 2"
+elseif game.PlaceId == 7449423635 then sea = "Sea 3" end
 
 local statusLabels = {
     "Name: "..player.Name,
-    "World: "..world,
+    "Sea: "..sea, -- Dòng này sẽ hiện Sea mấy
     "Race: "..(player.Data and player.Data:FindFirstChild("Race") and player.Data.Race.Value or "Unknown"),
     "Fruit: ",
     "Awaken: "
