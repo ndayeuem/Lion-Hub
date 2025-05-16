@@ -12,8 +12,7 @@ local Config = {
     AccentColor = Color3.fromRGB(255, 215, 0),
     CheckmarkColor = Color3.fromRGB(0, 255, 0),
     Font = Enum.Font.SourceSansBold,
-    RefreshRate = 1,
-    ToggleKey = Enum.KeyCode.RightShift
+    RefreshRate = 1
 }
 
 -- Premium items to track
@@ -27,7 +26,6 @@ local PremiumItems = {
 
 -- UI state
 local GUI
-local IsVisible = true
 local IsDragging = false
 local IsResizing = false
 local DragStart, ResizeStart, OriginalSize, OriginalPos
@@ -82,15 +80,15 @@ function LionHub:CreateUI()
     playerInfoFrame.Name = "PlayerInfoFrame"
     playerInfoFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     playerInfoFrame.BackgroundTransparency = 0.5
-    playerInfoFrame.Size = UDim2.new(0.3, 0, 0.35, 0)
-    playerInfoFrame.Position = UDim2.new(0.35, 0, 0.55, 0)
+    playerInfoFrame.Size = UDim2.new(0.65, 0, 0.15, 0)
+    playerInfoFrame.Position = UDim2.new(0.175, 0, 0.8, 0)
     playerInfoFrame.Parent = GUI
     ApplyStyle(playerInfoFrame)
     
     local infoTitle = Instance.new("TextLabel")
     infoTitle.Name = "InfoTitle"
     infoTitle.BackgroundTransparency = 1
-    infoTitle.Size = UDim2.new(1, 0, 0.12, 0)
+    infoTitle.Size = UDim2.new(1, 0, 0.2, 0)
     infoTitle.Font = Config.Font
     infoTitle.Text = "Thông tin người chơi"
     infoTitle.TextColor3 = Config.AccentColor
@@ -100,13 +98,13 @@ function LionHub:CreateUI()
     local statsContainer = Instance.new("Frame")
     statsContainer.Name = "PlayerStatsContainer"
     statsContainer.BackgroundTransparency = 1
-    statsContainer.Size = UDim2.new(0.95, 0, 0.85, 0)
-    statsContainer.Position = UDim2.new(0.025, 0, 0.14, 0)
+    statsContainer.Size = UDim2.new(0.95, 0, 0.75, 0)
+    statsContainer.Position = UDim2.new(0.025, 0, 0.25, 0)
     statsContainer.Parent = playerInfoFrame
     
     local statsLayout = Instance.new("UIListLayout")
     statsLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    statsLayout.Padding = UDim.new(0, 8)
+    statsLayout.Padding = UDim.new(0, 5)
     statsLayout.Parent = statsContainer
     
     -- Player stats labels
@@ -122,7 +120,7 @@ function LionHub:CreateUI()
         local statLabel = Instance.new("TextLabel")
         statLabel.Name = label.Name
         statLabel.BackgroundTransparency = 1
-        statLabel.Size = UDim2.new(1, 0, 0, 25)
+        statLabel.Size = UDim2.new(1, 0, 0, 20)
         statLabel.Font = Config.Font
         statLabel.Text = label.Text .. "Đang tải..."
         statLabel.TextColor3 = Config.TextColor
@@ -137,15 +135,15 @@ function LionHub:CreateUI()
     itemsFrame.Name = "ItemsFrame"
     itemsFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     itemsFrame.BackgroundTransparency = 0.5
-    itemsFrame.Size = UDim2.new(0.35, 0, 0.45, 0)
-    itemsFrame.Position = UDim2.new(0.325, 0, 0.1, 0)
+    itemsFrame.Size = UDim2.new(0.65, 0, 0.65, 0)
+    itemsFrame.Position = UDim2.new(0.175, 0, 0.1, 0)
     itemsFrame.Parent = GUI
     ApplyStyle(itemsFrame)
     
     local itemsTitle = Instance.new("TextLabel")
     itemsTitle.Name = "ItemsTitle"
     itemsTitle.BackgroundTransparency = 1
-    itemsTitle.Size = UDim2.new(1, 0, 0.12, 0)
+    itemsTitle.Size = UDim2.new(1, 0, 0.1, 0)
     itemsTitle.Font = Config.Font
     itemsTitle.Text = "Vật phẩm cao cấp"
     itemsTitle.TextColor3 = Config.AccentColor
@@ -155,13 +153,13 @@ function LionHub:CreateUI()
     local itemsContainer = Instance.new("Frame")
     itemsContainer.Name = "ItemsContainer"
     itemsContainer.BackgroundTransparency = 1
-    itemsContainer.Size = UDim2.new(0.95, 0, 0.85, 0)
-    itemsContainer.Position = UDim2.new(0.025, 0, 0.14, 0)
+    itemsContainer.Size = UDim2.new(0.95, 0, 0.88, 0)
+    itemsContainer.Position = UDim2.new(0.025, 0, 0.12, 0)
     itemsContainer.Parent = itemsFrame
     
     local itemsLayout = Instance.new("UIListLayout")
     itemsLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    itemsLayout.Padding = UDim.new(0, 8)
+    itemsLayout.Padding = UDim.new(0, 10)
     itemsLayout.Parent = itemsContainer
     
     -- Premium items
@@ -245,8 +243,8 @@ function LionHub:CreateUI()
                 )
             elseif IsResizing then
                 local delta = input.Position - ResizeStart
-                local newWidth = math.clamp(OriginalSize.X.Scale + (delta.X / GUI.AbsoluteSize.X), 0.2, 0.6)
-                local newHeight = math.clamp(OriginalSize.Y.Scale + (delta.Y / GUI.AbsoluteSize.Y), 0.3, 0.7)
+                local newWidth = math.clamp(OriginalSize.X.Scale + (delta.X / GUI.AbsoluteSize.X), 0.4, 0.8)
+                local newHeight = math.clamp(OriginalSize.Y.Scale + (delta.Y / GUI.AbsoluteSize.Y), 0.5, 0.9)
                 itemsFrame.Size = UDim2.new(newWidth, 0, newHeight, 0)
             end
         end
@@ -256,13 +254,6 @@ function LionHub:CreateUI()
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             IsDragging = false
             IsResizing = false
-        end
-    end)
-    
-    -- Toggle UI
-    UserInputService.InputBegan:Connect(function(input, gameProcessed)
-        if not gameProcessed and input.KeyCode == Config.ToggleKey then
-            self:ToggleVisibility()
         end
     end)
 end
@@ -304,22 +295,6 @@ function LionHub:UpdatePremiumItems()
             checkmark.Visible = hasItem
             if itemLabel then
                 itemLabel.TextColor3 = hasItem and Config.CheckmarkColor or Config.TextColor
-            end
-        end
-    end
-end
-
--- Toggle UI visibility
-function LionHub:ToggleVisibility()
-    IsVisible = not IsVisible
-    if not GUI then return end
-    
-    for _, frame in ipairs({"PlayerInfoFrame", "ItemsFrame", "Background"}) do
-        local element = GUI:FindFirstChild(frame)
-        if element then
-            element.Visible = IsVisible
-            if frame == "Background" then
-                element.BackgroundTransparency = IsVisible and Config.BackgroundTransparency or 0.95
             end
         end
     end
