@@ -9,7 +9,7 @@ local Config = {
     BackgroundColor = Color3.fromRGB(0, 0, 0),
     BackgroundTransparency = 0.6,
     TextColor = Color3.fromRGB(255, 255, 255),
-    AccentColor = Color3.fromRGB(255, 215, 0),
+    AccentColor = Color3.fromRGB(0, 120, 215), -- Blue color
     CheckmarkColor = Color3.fromRGB(0, 255, 0),
     Font = Enum.Font.SourceSansBold,
     RefreshRate = 1
@@ -75,68 +75,13 @@ function LionHub:CreateUI()
     background.Size = UDim2.new(1, 0, 1, 0)
     background.Parent = GUI
     
-    -- Player Info Frame
-    local playerInfoFrame = Instance.new("Frame")
-    playerInfoFrame.Name = "PlayerInfoFrame"
-    playerInfoFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    playerInfoFrame.BackgroundTransparency = 0.5
-    playerInfoFrame.Size = UDim2.new(0.65, 0, 0.15, 0)
-    playerInfoFrame.Position = UDim2.new(0.175, 0, 0.8, 0)
-    playerInfoFrame.Parent = GUI
-    ApplyStyle(playerInfoFrame)
-    
-    local infoTitle = Instance.new("TextLabel")
-    infoTitle.Name = "InfoTitle"
-    infoTitle.BackgroundTransparency = 1
-    infoTitle.Size = UDim2.new(1, 0, 0.2, 0)
-    infoTitle.Font = Config.Font
-    infoTitle.Text = "Thông tin người chơi"
-    infoTitle.TextColor3 = Config.AccentColor
-    infoTitle.TextSize = 16
-    infoTitle.Parent = playerInfoFrame
-    
-    local statsContainer = Instance.new("Frame")
-    statsContainer.Name = "PlayerStatsContainer"
-    statsContainer.BackgroundTransparency = 1
-    statsContainer.Size = UDim2.new(0.95, 0, 0.75, 0)
-    statsContainer.Position = UDim2.new(0.025, 0, 0.25, 0)
-    statsContainer.Parent = playerInfoFrame
-    
-    local statsLayout = Instance.new("UIListLayout")
-    statsLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    statsLayout.Padding = UDim.new(0, 5)
-    statsLayout.Parent = statsContainer
-    
-    -- Player stats labels
-    local labels = {
-        {Name = "PlayerName", Text = "Tên: "},
-        {Name = "Level", Text = "Cấp độ: "},
-        {Name = "Beli", Text = "Beli: "},
-        {Name = "Fragments", Text = "Fragments: "},
-        {Name = "Race", Text = "Race: "}
-    }
-    
-    for i, label in ipairs(labels) do
-        local statLabel = Instance.new("TextLabel")
-        statLabel.Name = label.Name
-        statLabel.BackgroundTransparency = 1
-        statLabel.Size = UDim2.new(1, 0, 0, 20)
-        statLabel.Font = Config.Font
-        statLabel.Text = label.Text .. "Đang tải..."
-        statLabel.TextColor3 = Config.TextColor
-        statLabel.TextSize = 14
-        statLabel.TextXAlignment = Enum.TextXAlignment.Left
-        statLabel.LayoutOrder = i
-        statLabel.Parent = statsContainer
-    end
-    
     -- Items Frame
     local itemsFrame = Instance.new("Frame")
     itemsFrame.Name = "ItemsFrame"
     itemsFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     itemsFrame.BackgroundTransparency = 0.5
     itemsFrame.Size = UDim2.new(0.65, 0, 0.65, 0)
-    itemsFrame.Position = UDim2.new(0.175, 0, 0.1, 0)
+    itemsFrame.Position = UDim2.new(0.025, 0, 0.175, 0)
     itemsFrame.Parent = GUI
     ApplyStyle(itemsFrame)
     
@@ -159,7 +104,7 @@ function LionHub:CreateUI()
     
     local itemsLayout = Instance.new("UIListLayout")
     itemsLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    itemsLayout.Padding = UDim.new(0, 10)
+    itemsLayout.Padding = UDim.new(0, 15) -- Increased spacing between items
     itemsLayout.Parent = itemsContainer
     
     -- Premium items
@@ -204,7 +149,61 @@ function LionHub:CreateUI()
         itemLabel.Parent = itemFrame
     end
     
-    -- Resize handle
+    -- Quest Info Frame
+    local questInfoFrame = Instance.new("Frame")
+    questInfoFrame.Name = "QuestInfoFrame"
+    questInfoFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    questInfoFrame.BackgroundTransparency = 0.5
+    questInfoFrame.Size = UDim2.new(0.3, 0, 0.65, 0)
+    questInfoFrame.Position = UDim2.new(0.675, 0, 0.175, 0)
+    questInfoFrame.Parent = GUI
+    ApplyStyle(questInfoFrame)
+    
+    local questInfoTitle = Instance.new("TextLabel")
+    questInfoTitle.Name = "QuestInfoTitle"
+    questInfoTitle.BackgroundTransparency = 1
+    questInfoTitle.Size = UDim2.new(1, 0, 0.1, 0)
+    questInfoTitle.Font = Config.Font
+    questInfoTitle.Text = "Thông tin nhiệm vụ"
+    questInfoTitle.TextColor3 = Config.AccentColor
+    questInfoTitle.TextSize = 16
+    questInfoTitle.Parent = questInfoFrame
+    
+    local questStatsContainer = Instance.new("Frame")
+    questStatsContainer.Name = "QuestStatsContainer"
+    questStatsContainer.BackgroundTransparency = 1
+    questStatsContainer.Size = UDim2.new(0.95, 0, 0.88, 0)
+    questStatsContainer.Position = UDim2.new(0.025, 0, 0.12, 0)
+    questStatsContainer.Parent = questInfoFrame
+    
+    local questStatsLayout = Instance.new("UIListLayout")
+    questStatsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    questStatsLayout.Padding = UDim.new(0, 10)
+    questStatsLayout.Parent = questStatsContainer
+    
+    -- Quest stats labels
+    local questLabels = {
+        {Name = "QuestName", Text = "Tên nhiệm vụ: "},
+        {Name = "Objective", Text = "Mục tiêu: "},
+        {Name = "Status", Text = "Trạng thái: "}
+    }
+    
+    for i, label in ipairs(questLabels) do
+        local statLabel = Instance.new("TextLabel")
+        statLabel.Name = label.Name
+        statLabel.BackgroundTransparency = 1
+        statLabel.Size = UDim2.new(1, 0, 0, 25)
+        statLabel.Font = Config.Font
+        statLabel.Text = label.Text .. "Đang tải..."
+        statLabel.TextColor3 = Config.TextColor
+        statLabel.TextSize = 14
+        statLabel.TextXAlignment = Enum.TextXAlignment.Left
+        statLabel.TextWrapped = true
+        statLabel.LayoutOrder = i
+        statLabel.Parent = questStatsContainer
+    end
+    
+    -- Resize handle for ItemsFrame
     local resizeHandle = Instance.new("Frame")
     resizeHandle.Name = "ResizeHandle"
     resizeHandle.BackgroundColor3 = Config.AccentColor
@@ -214,7 +213,7 @@ function LionHub:CreateUI()
     resizeHandle.Parent = itemsFrame
     ApplyStyle(resizeHandle, nil, nil, 4)
     
-    -- Drag and resize handlers
+    -- Drag and resize handlers for ItemsFrame
     itemsTitle.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             IsDragging = true
@@ -258,19 +257,43 @@ function LionHub:CreateUI()
     end)
 end
 
--- Update player info
-function LionHub:UpdatePlayerInfo()
-    if not GUI or not GUI:FindFirstChild("PlayerInfoFrame") then return end
-    
-    local statsContainer = GUI.PlayerInfoFrame.PlayerStatsContainer
+-- Fetch current quest (simulated for Blox Fruit)
+function LionHub:GetCurrentQuest()
+    -- Simulated quest data (replace with actual Blox Fruit quest data retrieval)
     local data = LocalPlayer:FindFirstChild("Data")
+    local questData = {
+        QuestName = "Không có nhiệm vụ",
+        Objective = "N/A",
+        Status = "N/A"
+    }
+    
+    -- Simulate quest retrieval (Blox Fruit stores quests differently)
+    if data then
+        -- Example: Check for an active quest in player's data
+        -- This is a placeholder; adjust based on Blox Fruit's quest system
+        local questFolder = data:FindFirstChild("Quests")
+        if questFolder and #questFolder:GetChildren() > 0 then
+            local activeQuest = questFolder:GetChildren()[1] -- First active quest
+            questData.QuestName = activeQuest.Name or "Nhiệm vụ không xác định"
+            questData.Objective = activeQuest:FindFirstChild("Objective") and activeQuest.Objective.Value or "Hoàn thành mục tiêu"
+            questData.Status = activeQuest:FindFirstChild("Completed") and activeQuest.Completed.Value and "Hoàn thành" or "Đang thực hiện"
+        end
+    end
+    
+    return questData
+end
+
+-- Update quest info
+function LionHub:UpdateQuestInfo()
+    if not GUI or not GUI:FindFirstChild("QuestInfoFrame") then return end
+    
+    local statsContainer = GUI.QuestInfoFrame.QuestStatsContainer
+    local questData = self:GetCurrentQuest()
     
     local stats = {
-        PlayerName = LocalPlayer.Name,
-        Level = data and data:FindFirstChild("Level") and data.Level.Value or "N/A",
-        Beli = data and data:FindFirstChild("Beli") and self:FormatNumber(data.Beli.Value) or "0",
-        Fragments = data and data:FindFirstChild("Fragments") and self:FormatNumber(data.Fragments.Value) or "0",
-        Race = data and data:FindFirstChild("Race") and data.Race.Value or "Human"
+        QuestName = questData.QuestName,
+        Objective = questData.Objective,
+        Status = questData.Status
     }
     
     for statName, value in pairs(stats) do
@@ -326,7 +349,7 @@ function LionHub:HasPremiumItem(itemName)
     return false
 end
 
--- Format large numbers
+-- Format large numbers (retained for potential future use)
 function LionHub:FormatNumber(number)
     number = tonumber(number) or 0
     if number >= 1e9 then return string.format("%.2fB", number / 1e9) end
@@ -341,7 +364,7 @@ function LionHub:Start()
         self:CreateUI()
         spawn(function()
             while wait(Config.RefreshRate) do
-                self:UpdatePlayerInfo()
+                self:UpdateQuestInfo()
             end
         end)
     end)
