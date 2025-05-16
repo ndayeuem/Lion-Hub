@@ -75,74 +75,20 @@ function LionHub:CreateUI()
     background.Size = UDim2.new(1, 0, 1, 0)
     background.Parent = GUI
     
-    -- Quest Info Frame (at the top)
-    local questInfoFrame = Instance.new("Frame")
-    questInfoFrame.Name = "QuestInfoFrame"
-    questInfoFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    questInfoFrame.BackgroundTransparency = 0.5
-    questInfoFrame.Size = UDim2.new(0.35, 0, 0.15, 0)
-    questInfoFrame.Position = UDim2.new(0.325, 0, 0.05, 0)
-    questInfoFrame.Parent = GUI
-    ApplyStyle(questInfoFrame)
-    
-    local questInfoTitle = Instance.new("TextLabel")
-    questInfoTitle.Name = "QuestInfoTitle"
-    questInfoTitle.BackgroundTransparency = 1
-    questInfoTitle.Size = UDim2.new(1, 0, 0.25, 0)
-    questInfoTitle.Font = Config.Font
-    questInfoTitle.Text = "Thông tin nhiệm vụ"
-    questInfoTitle.TextColor3 = Config.AccentColor
-    questInfoTitle.TextSize = 16
-    questInfoTitle.Parent = questInfoFrame
-    
-    local questStatsContainer = Instance.new("Frame")
-    questStatsContainer.Name = "QuestStatsContainer"
-    questStatsContainer.BackgroundTransparency = 1
-    questStatsContainer.Size = UDim2.new(0.95, 0, 0.7, 0)
-    questStatsContainer.Position = UDim2.new(0.025, 0, 0.3, 0)
-    questStatsContainer.Parent = questInfoFrame
-    
-    local questStatsLayout = Instance.new("UIListLayout")
-    questStatsLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    questStatsLayout.Padding = UDim.new(0, 5)
-    questStatsLayout.Parent = questStatsContainer
-    
-    -- Quest stats labels
-    local questLabels = {
-        {Name = "QuestName", Text = "Tên nhiệm vụ: "},
-        {Name = "Objective", Text = "Mục tiêu: "},
-        {Name = "Status", Text = "Trạng thái: "}
-    }
-    
-    for i, label in ipairs(questLabels) do
-        local statLabel = Instance.new("TextLabel")
-        statLabel.Name = label.Name
-        statLabel.BackgroundTransparency = 1
-        statLabel.Size = UDim2.new(1, 0, 0, 20)
-        statLabel.Font = Config.Font
-        statLabel.Text = label.Text .. "Đang tải..."
-        statLabel.TextColor3 = Config.TextColor
-        statLabel.TextSize = 14
-        statLabel.TextXAlignment = Enum.TextXAlignment.Left
-        statLabel.TextWrapped = true
-        statLabel.LayoutOrder = i
-        statLabel.Parent = questStatsContainer
-    end
-    
-    -- Items Frame (now includes player info)
+    -- Items Frame (at the top, includes player info)
     local itemsFrame = Instance.new("Frame")
     itemsFrame.Name = "ItemsFrame"
     itemsFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     itemsFrame.BackgroundTransparency = 0.5
-    itemsFrame.Size = UDim2.new(0.35, 0, 0.45, 0)
-    itemsFrame.Position = UDim2.new(0.325, 0, 0.1, 0)
+    itemsFrame.Size = UDim2.new(0.95, 0, 0.65, 0)
+    itemsFrame.Position = UDim2.new(0.025, 0, 0.05, 0)
     itemsFrame.Parent = GUI
     ApplyStyle(itemsFrame)
     
     local itemsTitle = Instance.new("TextLabel")
     itemsTitle.Name = "ItemsTitle"
     itemsTitle.BackgroundTransparency = 1
-    itemsTitle.Size = UDim2.new(1, 0, 0.1, 0)
+    itemsTitle.Size = UDim2.new(1, 0, 0.05, 0)
     itemsTitle.Font = Config.Font
     itemsTitle.Text = "Thông tin & Vật phẩm"
     itemsTitle.TextColor3 = Config.AccentColor
@@ -153,13 +99,13 @@ function LionHub:CreateUI()
     local playerStatsContainer = Instance.new("Frame")
     playerStatsContainer.Name = "PlayerStatsContainer"
     playerStatsContainer.BackgroundTransparency = 1
-    playerStatsContainer.Size = UDim2.new(0.95, 0, 0.35, 0)
-    playerStatsContainer.Position = UDim2.new(0.025, 0, 0.12, 0)
+    playerStatsContainer.Size = UDim2.new(0.95, 0, 0.25, 0)
+    playerStatsContainer.Position = UDim2.new(0.025, 0, 0.07, 0)
     playerStatsContainer.Parent = itemsFrame
     
     local playerStatsLayout = Instance.new("UIListLayout")
     playerStatsLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    playerStatsLayout.Padding = UDim.new(0, 5)
+    playerStatsLayout.Padding = UDim.new(0, 2)
     playerStatsLayout.Parent = playerStatsContainer
     
     -- Player stats labels
@@ -189,8 +135,8 @@ function LionHub:CreateUI()
     local itemsContainer = Instance.new("Frame")
     itemsContainer.Name = "ItemsContainer"
     itemsContainer.BackgroundTransparency = 1
-    itemsContainer.Size = UDim2.new(0.95, 0, 0.53, 0)
-    itemsContainer.Position = UDim2.new(0.025, 0, 0.45, 0)
+    itemsContainer.Size = UDim2.new(0.95, 0, 0.65, 0)
+    itemsContainer.Position = UDim2.new(0.025, 0, 0.32, 0)
     itemsContainer.Parent = itemsFrame
     
     local itemsLayout = Instance.new("UIListLayout")
@@ -240,6 +186,60 @@ function LionHub:CreateUI()
         itemLabel.Parent = itemFrame
     end
     
+    -- Quest Info Frame (at the bottom)
+    local questInfoFrame = Instance.new("Frame")
+    questInfoFrame.Name = "QuestInfoFrame"
+    questInfoFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    questInfoFrame.BackgroundTransparency = 0.5
+    questInfoFrame.Size = UDim2.new(0.95, 0, 0.15, 0)
+    questInfoFrame.Position = UDim2.new(0.025, 0, 0.75, 0)
+    questInfoFrame.Parent = GUI
+    ApplyStyle(questInfoFrame)
+    
+    local questInfoTitle = Instance.new("TextLabel")
+    questInfoTitle.Name = "QuestInfoTitle"
+    questInfoTitle.BackgroundTransparency = 1
+    questInfoTitle.Size = UDim2.new(1, 0, 0.25, 0)
+    questInfoTitle.Font = Config.Font
+    questInfoTitle.Text = "Thông tin nhiệm vụ"
+    questInfoTitle.TextColor3 = Config.AccentColor
+    questInfoTitle.TextSize = 16
+    questInfoTitle.Parent = questInfoFrame
+    
+    local questStatsContainer = Instance.new("Frame")
+    questStatsContainer.Name = "QuestStatsContainer"
+    questStatsContainer.BackgroundTransparency = 1
+    questStatsContainer.Size = UDim2.new(0.98, 0, 0.7, 0)
+    questStatsContainer.Position = UDim2.new(0.01, 0, 0.3, 0)
+    questStatsContainer.Parent = questInfoFrame
+    
+    local questStatsLayout = Instance.new("UIListLayout")
+    questStatsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    questStatsLayout.Padding = UDim.new(0, 2)
+    questStatsLayout.Parent = questStatsContainer
+    
+    -- Quest stats labels
+    local questLabels = {
+        {Name = "QuestName", Text = "Tên nhiệm vụ: "},
+        {Name = "Objective", Text = "Mục tiêu: "},
+        {Name = "Status", Text = "Trạng thái: "}
+    }
+    
+    for i, label in ipairs(questLabels) do
+        local statLabel = Instance.new("TextLabel")
+        statLabel.Name = label.Name
+        statLabel.BackgroundTransparency = 1
+        statLabel.Size = UDim2.new(1, 0, 0, 20)
+        statLabel.Font = Config.Font
+        statLabel.Text = label.Text .. "Đang tải..."
+        statLabel.TextColor3 = Config.TextColor
+        statLabel.TextSize = 14
+        statLabel.TextXAlignment = Enum.TextXAlignment.Left
+        statLabel.TextWrapped = true
+        statLabel.LayoutOrder = i
+        statLabel.Parent = questStatsContainer
+    end
+    
     -- Resize handle for ItemsFrame
     local resizeHandle = Instance.new("Frame")
     resizeHandle.Name = "ResizeHandle"
@@ -279,8 +279,8 @@ function LionHub:CreateUI()
                 )
             elseif IsResizing then
                 local delta = input.Position - ResizeStart
-                local newWidth = math.clamp(OriginalSize.X.Scale + (delta.X / GUI.AbsoluteSize.X), 0.2, 0.6)
-                local newHeight = math.clamp(OriginalSize.Y.Scale + (delta.Y / GUI.AbsoluteSize.Y), 0.3, 0.7)
+                local newWidth = math.clamp(OriginalSize.X.Scale + (delta.X / GUI.AbsoluteSize.X), 0.5, 0.98)
+                local newHeight = math.clamp(OriginalSize.Y.Scale + (delta.Y / GUI.AbsoluteSize.Y), 0.4, 0.8)
                 itemsFrame.Size = UDim2.new(newWidth, 0, newHeight, 0)
             end
         end
@@ -335,7 +335,7 @@ function LionHub:UpdateQuestInfo()
     end
 end
 
--- Update player info (now inside ItemsFrame)
+-- Update player info (inside ItemsFrame)
 function LionHub:UpdatePlayerInfo()
     if not GUI or not GUI:FindFirstChild("ItemsFrame") then return end
     
