@@ -6,13 +6,15 @@ local LocalPlayer = Players.LocalPlayer
 -- Configuration
 local Config = {
     UIName = "Lion Hub",
-    BackgroundColor = Color3.fromRGB(0, 0, 0),
-    BackgroundTransparency = 0.6,
+    BackgroundColor = Color3.fromRGB(20, 20, 20),  -- Dark background
+    BackgroundTransparency = 0.3,
     TextColor = Color3.fromRGB(255, 255, 255),
-    AccentColor = Color3.fromRGB(0, 120, 215), -- Blue color
-    CheckmarkColor = Color3.fromRGB(0, 255, 0),
+    AccentColor = Color3.fromRGB(0, 120, 215),     -- Blue accent
+    CheckmarkColor = Color3.fromRGB(0, 255, 0),    -- Green for owned items
+    MissingItemColor = Color3.fromRGB(255, 50, 50),-- Red for missing items
     Font = Enum.Font.SourceSansBold,
-    RefreshRate = 1
+    RefreshRate = 1,
+    CompactMode = true
 }
 
 -- Premium items to track
@@ -27,24 +29,23 @@ local PremiumItems = {
 -- UI state
 local GUI
 local IsDragging = false
-local IsResizing = false
-local DragStart, ResizeStart, OriginalSize, OriginalPos
+local DragStart, OriginalPos
 
 -- Helper function to apply common UI styling
 local function ApplyStyle(frame, color, thickness, cornerRadius)
     local stroke = Instance.new("UIStroke")
     stroke.Color = color or Config.AccentColor
-    stroke.Thickness = thickness or 2
+    stroke.Thickness = thickness or 1
     stroke.Parent = frame
     
     local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, cornerRadius or 8)
+    corner.CornerRadius = UDim.new(0, cornerRadius or 6)
     corner.Parent = frame
 end
 
--- Create UI
+-- Create compact UI
 function LionHub:CreateUI()
-    print("Creating UI...")
+    print("Creating compact UI...")
     
     -- Clean up existing UI
     for _, parent in ipairs({game.CoreGui, LocalPlayer.PlayerGui}) do
@@ -67,91 +68,85 @@ function LionHub:CreateUI()
         print("Using CoreGui")
     end
     
-    -- Background
-    local background = Instance.new("Frame")
-    background.Name = "Background"
-    background.BackgroundColor3 = Config.BackgroundColor
-    background.BackgroundTransparency = Config.BackgroundTransparency
-    background.Size = UDim2.new(1, 0, 1, 0)
-    background.Parent = GUI
+    -- Main container frame
+    local mainFrame = Instance.new("Frame")
+    mainFrame.Name = "MainFrame"
+    mainFrame.BackgroundColor3 = Config.BackgroundColor
+    mainFrame.BackgroundTransparency = Config.BackgroundTransparency
+    mainFrame.Size = UDim2.new(0, 600, 0, 200)  -- Compact size
+    mainFrame.Position = UDim2.new(0.5, -300, 0.05, 0)  -- Centered near top
+    mainFrame.AnchorPoint = Vector2.new(0.5, 0)
+    mainFrame.Parent = GUI
+    ApplyStyle(mainFrame)
     
-    -- Items Frame (at the top, includes player info)
-    local itemsFrame = Instance.new("Frame")
-    itemsFrame.Name = "ItemsFrame"
-    itemsFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    itemsFrame.BackgroundTransparency = 0.5
-    itemsFrame.Size = UDim2.new(0.95, 0, 0.65, 0)
-    itemsFrame.Position = UDim2.new(0.025, 0, 0.05, 0)
-    itemsFrame.Parent = GUI
-    ApplyStyle(itemsFrame)
+    -- Title bar
+    local titleBar = Instance.new("Frame")
+    titleBar.Name = "TitleBar"
+    titleBar.BackgroundColor3 = Config.AccentColor
+    titleBar.BackgroundTransparency = 0.7
+    titleBar.Size = UDim2.new(1, 0, 0, 25)
+    titleBar.Parent = mainFrame
+    ApplyStyle(titleBar, nil, 0, 0)
+    
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Name = "TitleLabel"
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Size = UDim2.new(1, 0, 1, 0)
+    titleLabel.Font = Config.Font
+    titleLabel.Text = Config.UIName
+    titleLabel.TextColor3 = Config.TextColor
+    titleLabel.TextSize = 16
+    titleLabel.Parent = titleBar
+    
+    -- Three-column layout
+    local columnsFrame = Instance.new("Frame")
+    columnsFrame.Name = "ColumnsFrame"
+    columnsFrame.BackgroundTransparency = 1
+    columnsFrame.Size = UDim2.new(1, -10, 1, -35)
+    columnsFrame.Position = UDim2.new(0, 5, 0, 30)
+    columnsFrame.Parent = mainFrame
+    
+    local gridLayout = Instance.new("UIGridLayout")
+    gridLayout.CellPadding = UDim2.new(0, 5, 0, 0)
+    gridLayout.CellSize = UDim2.new(0.33, -5, 1, 0)
+    gridLayout.FillDirection = Enum.FillDirection.Horizontal
+    gridLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    gridLayout.Parent = columnsFrame
+    
+    -- Left column: Items
+    local itemsColumn = Instance.new("Frame")
+    itemsColumn.Name = "ItemsColumn"
+    itemsColumn.BackgroundTransparency = 1
+    itemsColumn.Parent = columnsFrame
     
     local itemsTitle = Instance.new("TextLabel")
     itemsTitle.Name = "ItemsTitle"
     itemsTitle.BackgroundTransparency = 1
-    itemsTitle.Size = UDim2.new(1, 0, 0.05, 0)
+    itemsTitle.Size = UDim2.new(1, 0, 0, 20)
     itemsTitle.Font = Config.Font
-    itemsTitle.Text = "Thông tin & Vật phẩm"
+    itemsTitle.Text = "Vật phẩm cần lấy"
     itemsTitle.TextColor3 = Config.AccentColor
-    itemsTitle.TextSize = 16
-    itemsTitle.Parent = itemsFrame
+    itemsTitle.TextSize = 14
+    itemsTitle.Parent = itemsColumn
     
-    -- Player stats inside ItemsFrame
-    local playerStatsContainer = Instance.new("Frame")
-    playerStatsContainer.Name = "PlayerStatsContainer"
-    playerStatsContainer.BackgroundTransparency = 1
-    playerStatsContainer.Size = UDim2.new(0.95, 0, 0.25, 0)
-    playerStatsContainer.Position = UDim2.new(0.025, 0, 0.07, 0)
-    playerStatsContainer.Parent = itemsFrame
-    
-    local playerStatsLayout = Instance.new("UIListLayout")
-    playerStatsLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    playerStatsLayout.Padding = UDim.new(0, 2)
-    playerStatsLayout.Parent = playerStatsContainer
-    
-    -- Player stats labels
-    local playerLabels = {
-        {Name = "PlayerName", Text = "Tên: "},
-        {Name = "Level", Text = "Cấp độ: "},
-        {Name = "Beli", Text = "Beli: "},
-        {Name = "Fragments", Text = "Fragments: "},
-        {Name = "Race", Text = "Race: "}
-    }
-    
-    for i, label in ipairs(playerLabels) do
-        local statLabel = Instance.new("TextLabel")
-        statLabel.Name = label.Name
-        statLabel.BackgroundTransparency = 1
-        statLabel.Size = UDim2.new(1, 0, 0, 20)
-        statLabel.Font = Config.Font
-        statLabel.Text = label.Text .. "Đang tải..."
-        statLabel.TextColor3 = Config.TextColor
-        statLabel.TextSize = 14
-        statLabel.TextXAlignment = Enum.TextXAlignment.Left
-        statLabel.LayoutOrder = i
-        statLabel.Parent = playerStatsContainer
-    end
-    
-    -- Items list inside ItemsFrame
-    local itemsContainer = Instance.new("Frame")
-    itemsContainer.Name = "ItemsContainer"
-    itemsContainer.BackgroundTransparency = 1
-    itemsContainer.Size = UDim2.new(0.95, 0, 0.65, 0)
-    itemsContainer.Position = UDim2.new(0.025, 0, 0.32, 0)
-    itemsContainer.Parent = itemsFrame
+    local itemsList = Instance.new("Frame")
+    itemsList.Name = "ItemsList"
+    itemsList.BackgroundTransparency = 1
+    itemsList.Size = UDim2.new(1, 0, 1, -25)
+    itemsList.Position = UDim2.new(0, 0, 0, 25)
+    itemsList.Parent = itemsColumn
     
     local itemsLayout = Instance.new("UIListLayout")
-    itemsLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    itemsLayout.Padding = UDim.new(0, 10)
-    itemsLayout.Parent = itemsContainer
+    itemsLayout.Padding = UDim.new(0, 5)
+    itemsLayout.Parent = itemsList
     
-    -- Premium items
-    for i, itemName in ipairs(PremiumItems) do
+    -- Create item entries
+    for _, itemName in ipairs(PremiumItems) do
         local itemFrame = Instance.new("Frame")
         itemFrame.Name = "Item_" .. itemName:gsub(" ", "_")
         itemFrame.BackgroundTransparency = 1
         itemFrame.Size = UDim2.new(1, 0, 0, 25)
-        itemFrame.LayoutOrder = i
-        itemFrame.Parent = itemsContainer
+        itemFrame.Parent = itemsList
         
         local checkBox = Instance.new("Frame")
         checkBox.Name = "CheckBox"
@@ -176,56 +171,100 @@ function LionHub:CreateUI()
         local itemLabel = Instance.new("TextLabel")
         itemLabel.Name = "ItemLabel"
         itemLabel.BackgroundTransparency = 1
-        itemLabel.Size = UDim2.new(0.9, 0, 1, 0)
+        itemLabel.Size = UDim2.new(0.8, 0, 1, 0)
         itemLabel.Position = UDim2.new(0.1, 0, 0, 0)
         itemLabel.Font = Config.Font
         itemLabel.Text = itemName
-        itemLabel.TextColor3 = Config.TextColor
+        itemLabel.TextColor3 = Config.MissingItemColor  -- Start as red (missing)
         itemLabel.TextSize = 14
         itemLabel.TextXAlignment = Enum.TextXAlignment.Left
         itemLabel.Parent = itemFrame
     end
     
-    -- Quest Info Frame (at the bottom)
-    local questInfoFrame = Instance.new("Frame")
-    questInfoFrame.Name = "QuestInfoFrame"
-    questInfoFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    questInfoFrame.BackgroundTransparency = 0.5
-    questInfoFrame.Size = UDim2.new(0.95, 0, 0.15, 0)
-    questInfoFrame.Position = UDim2.new(0.025, 0, 0.75, 0)
-    questInfoFrame.Parent = GUI
-    ApplyStyle(questInfoFrame)
+    -- Middle column: Player Status
+    local playerColumn = Instance.new("Frame")
+    playerColumn.Name = "PlayerColumn"
+    playerColumn.BackgroundTransparency = 1
+    playerColumn.Parent = columnsFrame
     
-    local questInfoTitle = Instance.new("TextLabel")
-    questInfoTitle.Name = "QuestInfoTitle"
-    questInfoTitle.BackgroundTransparency = 1
-    questInfoTitle.Size = UDim2.new(1, 0, 0.25, 0)
-    questInfoTitle.Font = Config.Font
-    questInfoTitle.Text = "Thông tin nhiệm vụ"
-    questInfoTitle.TextColor3 = Config.AccentColor
-    questInfoTitle.TextSize = 16
-    questInfoTitle.Parent = questInfoFrame
+    local playerTitle = Instance.new("TextLabel")
+    playerTitle.Name = "PlayerTitle"
+    playerTitle.BackgroundTransparency = 1
+    playerTitle.Size = UDim2.new(1, 0, 0, 20)
+    playerTitle.Font = Config.Font
+    playerTitle.Text = "Trạng thái người chơi"
+    playerTitle.TextColor3 = Config.AccentColor
+    playerTitle.TextSize = 14
+    playerTitle.Parent = playerColumn
     
-    local questStatsContainer = Instance.new("Frame")
-    questStatsContainer.Name = "QuestStatsContainer"
-    questStatsContainer.BackgroundTransparency = 1
-    questStatsContainer.Size = UDim2.new(0.98, 0, 0.7, 0)
-    questStatsContainer.Position = UDim2.new(0.01, 0, 0.3, 0)
-    questStatsContainer.Parent = questInfoFrame
+    local playerStats = Instance.new("Frame")
+    playerStats.Name = "PlayerStats"
+    playerStats.BackgroundTransparency = 1
+    playerStats.Size = UDim2.new(1, 0, 1, -25)
+    playerStats.Position = UDim2.new(0, 0, 0, 25)
+    playerStats.Parent = playerColumn
     
-    local questStatsLayout = Instance.new("UIListLayout")
-    questStatsLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    questStatsLayout.Padding = UDim.new(0, 2)
-    questStatsLayout.Parent = questStatsContainer
+    local statsLayout = Instance.new("UIListLayout")
+    statsLayout.Padding = UDim.new(0, 5)
+    statsLayout.Parent = playerStats
+    
+    -- Player stats labels
+    local playerLabels = {
+        {Name = "PlayerName", Text = "Tên: "},
+        {Name = "Level", Text = "Cấp độ: "},
+        {Name = "Beli", Text = "Beli: "},
+        {Name = "Fragments", Text = "Fragments: "},
+        {Name = "Race", Text = "Race: "}
+    }
+    
+    for _, label in ipairs(playerLabels) do
+        local statLabel = Instance.new("TextLabel")
+        statLabel.Name = label.Name
+        statLabel.BackgroundTransparency = 1
+        statLabel.Size = UDim2.new(1, 0, 0, 20)
+        statLabel.Font = Config.Font
+        statLabel.Text = label.Text .. "Đang tải..."
+        statLabel.TextColor3 = Config.TextColor
+        statLabel.TextSize = 14
+        statLabel.TextXAlignment = Enum.TextXAlignment.Left
+        statLabel.Parent = playerStats
+    end
+    
+    -- Right column: Quest Status
+    local questColumn = Instance.new("Frame")
+    questColumn.Name = "QuestColumn"
+    questColumn.BackgroundTransparency = 1
+    questColumn.Parent = columnsFrame
+    
+    local questTitle = Instance.new("TextLabel")
+    questTitle.Name = "QuestTitle"
+    questTitle.BackgroundTransparency = 1
+    questTitle.Size = UDim2.new(1, 0, 0, 20)
+    questTitle.Font = Config.Font
+    questTitle.Text = "Trạng thái nhiệm vụ"
+    questTitle.TextColor3 = Config.AccentColor
+    questTitle.TextSize = 14
+    questTitle.Parent = questColumn
+    
+    local questStats = Instance.new("Frame")
+    questStats.Name = "QuestStats"
+    questStats.BackgroundTransparency = 1
+    questStats.Size = UDim2.new(1, 0, 1, -25)
+    questStats.Position = UDim2.new(0, 0, 0, 25)
+    questStats.Parent = questColumn
+    
+    local questLayout = Instance.new("UIListLayout")
+    questLayout.Padding = UDim.new(0, 5)
+    questLayout.Parent = questStats
     
     -- Quest stats labels
     local questLabels = {
-        {Name = "QuestName", Text = "Tên nhiệm vụ: "},
+        {Name = "QuestName", Text = "Nhiệm vụ: "},
         {Name = "Objective", Text = "Mục tiêu: "},
-        {Name = "Status", Text = "Trạng thái: "}
+        {Name = "Status", Text = "Tiến trình: "}
     }
     
-    for i, label in ipairs(questLabels) do
+    for _, label in ipairs(questLabels) do
         local statLabel = Instance.new("TextLabel")
         statLabel.Name = label.Name
         statLabel.BackgroundTransparency = 1
@@ -236,60 +275,33 @@ function LionHub:CreateUI()
         statLabel.TextSize = 14
         statLabel.TextXAlignment = Enum.TextXAlignment.Left
         statLabel.TextWrapped = true
-        statLabel.LayoutOrder = i
-        statLabel.Parent = questStatsContainer
+        statLabel.Parent = questStats
     end
     
-    -- Resize handle for ItemsFrame
-    local resizeHandle = Instance.new("Frame")
-    resizeHandle.Name = "ResizeHandle"
-    resizeHandle.BackgroundColor3 = Config.AccentColor
-    resizeHandle.BackgroundTransparency = 0.5
-    resizeHandle.Size = UDim2.new(0, 10, 0, 10)
-    resizeHandle.Position = UDim2.new(1, -10, 1, -10)
-    resizeHandle.Parent = itemsFrame
-    ApplyStyle(resizeHandle, nil, nil, 4)
-    
-    -- Drag and resize handlers for ItemsFrame
-    itemsTitle.InputBegan:Connect(function(input)
+    -- Drag handler for main frame
+    titleBar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             IsDragging = true
             DragStart = input.Position
-            OriginalPos = itemsFrame.Position
-        end
-    end)
-    
-    resizeHandle.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            IsResizing = true
-            ResizeStart = input.Position
-            OriginalSize = itemsFrame.Size
+            OriginalPos = mainFrame.Position
         end
     end)
     
     UserInputService.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
-            if IsDragging then
-                local delta = input.Position - DragStart
-                itemsFrame.Position = UDim2.new(
-                    OriginalPos.X.Scale + (delta.X / GUI.AbsoluteSize.X),
-                    0,
-                    OriginalPos.Y.Scale + (delta.Y / GUI.AbsoluteSize.Y),
-                    0
-                )
-            elseif IsResizing then
-                local delta = input.Position - ResizeStart
-                local newWidth = math.clamp(OriginalSize.X.Scale + (delta.X / GUI.AbsoluteSize.X), 0.5, 0.98)
-                local newHeight = math.clamp(OriginalSize.Y.Scale + (delta.Y / GUI.AbsoluteSize.Y), 0.4, 0.8)
-                itemsFrame.Size = UDim2.new(newWidth, 0, newHeight, 0)
-            end
+        if input.UserInputType == Enum.UserInputType.MouseMovement and IsDragging then
+            local delta = input.Position - DragStart
+            mainFrame.Position = UDim2.new(
+                OriginalPos.X.Scale,
+                OriginalPos.X.Offset + delta.X,
+                OriginalPos.Y.Scale,
+                OriginalPos.Y.Offset + delta.Y
+            )
         end
     end)
     
     UserInputService.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             IsDragging = false
-            IsResizing = false
         end
     end)
 end
@@ -318,9 +330,9 @@ end
 
 -- Update quest info
 function LionHub:UpdateQuestInfo()
-    if not GUI or not GUI:FindFirstChild("QuestInfoFrame") then return end
+    if not GUI or not GUI:FindFirstChild("MainFrame") then return end
     
-    local statsContainer = GUI.QuestInfoFrame.QuestStatsContainer
+    local questStats = GUI.MainFrame.ColumnsFrame.QuestColumn.QuestStats
     local questData = self:GetCurrentQuest()
     
     local stats = {
@@ -330,16 +342,16 @@ function LionHub:UpdateQuestInfo()
     }
     
     for statName, value in pairs(stats) do
-        local label = statsContainer:FindFirstChild(statName)
+        local label = questStats:FindFirstChild(statName)
         if label then label.Text = label.Text:match("^.-: ") .. value end
     end
 end
 
--- Update player info (inside ItemsFrame)
+-- Update player info
 function LionHub:UpdatePlayerInfo()
-    if not GUI or not GUI:FindFirstChild("ItemsFrame") then return end
+    if not GUI or not GUI:FindFirstChild("MainFrame") then return end
     
-    local statsContainer = GUI.ItemsFrame.PlayerStatsContainer
+    local playerStats = GUI.MainFrame.ColumnsFrame.PlayerColumn.PlayerStats
     local data = LocalPlayer:FindFirstChild("Data")
     
     local stats = {
@@ -351,7 +363,7 @@ function LionHub:UpdatePlayerInfo()
     }
     
     for statName, value in pairs(stats) do
-        local label = statsContainer:FindFirstChild(statName)
+        local label = playerStats:FindFirstChild(statName)
         if label then label.Text = label.Text:match("^.-: ") .. value end
     end
     
@@ -360,18 +372,18 @@ end
 
 -- Update premium items
 function LionHub:UpdatePremiumItems()
-    if not GUI or not GUI:FindFirstChild("ItemsFrame") then return end
+    if not GUI or not GUI:FindFirstChild("MainFrame") then return end
     
-    local itemsContainer = GUI.ItemsFrame.ItemsContainer
+    local itemsList = GUI.MainFrame.ColumnsFrame.ItemsColumn.ItemsList
     for _, itemName in ipairs(PremiumItems) do
-        local itemFrame = itemsContainer:FindFirstChild("Item_" .. itemName:gsub(" ", "_"))
-        if itemFrame and itemFrame:FindFirstChild("CheckBox") then
+        local itemFrame = itemsList:FindFirstChild("Item_" .. itemName:gsub(" ", "_"))
+        if itemFrame then
             local checkmark = itemFrame.CheckBox.Checkmark
             local itemLabel = itemFrame:FindFirstChild("ItemLabel")
             local hasItem = self:HasPremiumItem(itemName)
             checkmark.Visible = hasItem
             if itemLabel then
-                itemLabel.TextColor3 = hasItem and Config.CheckmarkColor or Config.TextColor
+                itemLabel.TextColor3 = hasItem and Config.CheckmarkColor or Config.MissingItemColor
             end
         end
     end
