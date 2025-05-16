@@ -7,15 +7,23 @@ LionHub.Name = "Lion Hub Kaitun"
 LionHub.Parent = game:GetService("CoreGui")
 LionHub.Enabled = true
 
--- Main Frame (nền trắng)
+-- Main Frame (nền trắng, viền xanh dương nhạt)
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
 MainFrame.Parent = LionHub
-MainFrame.Size = UDim2.new(0, 420, 0, 400)
-MainFrame.Position = UDim2.new(0.5, -210, 0.5, -200)
+MainFrame.Size = UDim2.new(0, 500, 0, 340)
+MainFrame.Position = UDim2.new(0.5, -250, 0.5, -170)
 MainFrame.BackgroundColor3 = Color3.fromRGB(255,255,255)
-MainFrame.BackgroundTransparency = 0
 MainFrame.BorderSizePixel = 0
+
+local border = Instance.new("UIStroke")
+border.Color = Color3.fromRGB(0, 150, 255)
+border.Thickness = 2
+border.Parent = MainFrame
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = MainFrame
 
 -- Header
 local Header = Instance.new("TextLabel")
@@ -25,19 +33,56 @@ Header.Position = UDim2.new(0, 0, 0, 0)
 Header.BackgroundTransparency = 1
 Header.Text = "Lion Hub Kaitun"
 Header.Font = Enum.Font.GothamBold
-Header.TextSize = 26
+Header.TextSize = 28
 Header.TextColor3 = Color3.fromRGB(0, 150, 255)
+Header.TextStrokeTransparency = 0.8
+
+-- Status Section
+local StatusFrame = Instance.new("Frame")
+StatusFrame.Parent = MainFrame
+StatusFrame.Size = UDim2.new(1, -40, 0, 110)
+StatusFrame.Position = UDim2.new(0, 20, 0, 60)
+StatusFrame.BackgroundTransparency = 1
+
+local StatusLayout = Instance.new("UIListLayout")
+StatusLayout.Parent = StatusFrame
+StatusLayout.Padding = UDim.new(0, 8)
+
+local player = game.Players.LocalPlayer
+local sea = "Unknown"
+if game.PlaceId == 2753915549 then sea = "Sea 1"
+elseif game.PlaceId == 4442272183 then sea = "Sea 2"
+elseif game.PlaceId == 7449423635 then sea = "Sea 3" end
+
+local statusLabels = {
+    "Name: "..player.Name,
+    "Sea: "..sea,
+    "Race: "..(player.Data and player.Data:FindFirstChild("Race") and player.Data.Race.Value or "Unknown"),
+    "Fruit: ",
+    "Awaken: "
+}
+for _, text in ipairs(statusLabels) do
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1, 0, 0, 22)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = text
+    lbl.Font = Enum.Font.Gotham
+    lbl.TextSize = 16
+    lbl.TextColor3 = Color3.fromRGB(0,0,0)
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.Parent = StatusFrame
+end
 
 -- Check Item Section
 local ItemsFrame = Instance.new("Frame")
 ItemsFrame.Parent = MainFrame
-ItemsFrame.Size = UDim2.new(1, -40, 0, 160)
-ItemsFrame.Position = UDim2.new(0, 20, 0, 60)
+ItemsFrame.Size = UDim2.new(1, -40, 0, 120)
+ItemsFrame.Position = UDim2.new(0, 20, 0, 180)
 ItemsFrame.BackgroundTransparency = 1
 
 local ItemsLayout = Instance.new("UIListLayout")
 ItemsLayout.Parent = ItemsFrame
-ItemsLayout.Padding = UDim.new(0, 10)
+ItemsLayout.Padding = UDim.new(0, 8)
 
 local PremiumItems = {
     ["God Human"] = {"God Human", "GodHuman"},
@@ -98,20 +143,30 @@ local function HasPremiumItem(mainItemName)
     return false
 end
 
+local itemHeader = Instance.new("TextLabel")
+itemHeader.Size = UDim2.new(1, 0, 0, 22)
+itemHeader.BackgroundTransparency = 1
+itemHeader.Text = "Premium Items:"
+itemHeader.Font = Enum.Font.GothamBold
+itemHeader.TextSize = 17
+itemHeader.TextColor3 = Color3.fromRGB(0, 150, 255)
+itemHeader.TextXAlignment = Enum.TextXAlignment.Left
+itemHeader.Parent = ItemsFrame
+
 for mainItemName in pairs(PremiumItems) do
     local itemFrame = Instance.new("Frame")
-    itemFrame.Size = UDim2.new(1, 0, 0, 28)
+    itemFrame.Size = UDim2.new(1, 0, 0, 22)
     itemFrame.BackgroundTransparency = 1
     itemFrame.Parent = ItemsFrame
 
     local checkBox = Instance.new("TextLabel")
-    checkBox.Size = UDim2.new(0, 24, 0, 24)
-    checkBox.Position = UDim2.new(0, 0, 0, 2)
+    checkBox.Size = UDim2.new(0, 24, 0, 22)
+    checkBox.Position = UDim2.new(0, 0, 0, 0)
     checkBox.BackgroundTransparency = 1
     checkBox.Text = HasPremiumItem(mainItemName) and "✓" or "✗"
-    checkBox.TextColor3 = Color3.fromRGB(50, 255, 50)
+    checkBox.TextColor3 = HasPremiumItem(mainItemName) and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(200,0,0)
     checkBox.Font = Enum.Font.GothamBold
-    checkBox.TextSize = 20
+    checkBox.TextSize = 18
     checkBox.Parent = itemFrame
 
     local itemLabel = Instance.new("TextLabel")
@@ -126,38 +181,14 @@ for mainItemName in pairs(PremiumItems) do
     itemLabel.Parent = itemFrame
 end
 
--- Status Section
-local StatusFrame = Instance.new("Frame")
-StatusFrame.Parent = MainFrame
-StatusFrame.Size = UDim2.new(1, -40, 0, 120)
-StatusFrame.Position = UDim2.new(0, 20, 0, 240)
-StatusFrame.BackgroundTransparency = 1
-
-local StatusLayout = Instance.new("UIListLayout")
-StatusLayout.Parent = StatusFrame
-StatusLayout.Padding = UDim.new(0, 10)
-
-local player = game.Players.LocalPlayer
-local sea = "Unknown"
-if game.PlaceId == 2753915549 then sea = "Sea 1"
-elseif game.PlaceId == 4442272183 then sea = "Sea 2"
-elseif game.PlaceId == 7449423635 then sea = "Sea 3" end
-
-local statusLabels = {
-    "Name: "..player.Name,
-    "Sea: "..sea, -- Dòng này sẽ hiện Sea mấy
-    "Race: "..(player.Data and player.Data:FindFirstChild("Race") and player.Data.Race.Value or "Unknown"),
-    "Fruit: ",
-    "Awaken: "
-}
-for _, text in ipairs(statusLabels) do
-    local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(1, 0, 0, 22)
-    lbl.BackgroundTransparency = 1
-    lbl.Text = text
-    lbl.Font = Enum.Font.Gotham
-    lbl.TextSize = 15
-    lbl.TextColor3 = Color3.fromRGB(0,0,0)
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.Parent = StatusFrame
-end
+-- Footer (giống Switch: dòng nhỏ dưới cùng)
+local Footer = Instance.new("TextLabel")
+Footer.Parent = MainFrame
+Footer.Size = UDim2.new(1, 0, 0, 20)
+Footer.Position = UDim2.new(0, 0, 1, -20)
+Footer.BackgroundTransparency = 1
+Footer.Text = "Lion Hub Kaitun | "..player.Name.." | Sea: "..sea
+Footer.Font = Enum.Font.Gotham
+Footer.TextSize = 13
+Footer.TextColor3 = Color3.fromRGB(0, 150, 255)
+Footer.TextXAlignment = Enum.TextXAlignment.Center
