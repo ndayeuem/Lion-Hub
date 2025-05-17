@@ -87,6 +87,86 @@ ItemLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 ItemLabel.TextStrokeTransparency = 0.7
 ItemLabel.Text = "🎒 Item: Đang kiểm tra..."
 
+-- Hàm kiểm tra God Human (mọi trường hợp)
+local function hasGodHuman(player)
+    -- Check Backpack
+    local backpack = player:FindFirstChild("Backpack")
+    if backpack then
+        for _, tool in ipairs(backpack:GetChildren()) do
+            if tool.Name == "God Human" or tool.Name == "GodHuman" then
+                return true
+            end
+        end
+    end
+    -- Check Character
+    local character = player.Character
+    if character then
+        for _, tool in ipairs(character:GetChildren()) do
+            if tool.Name == "God Human" or tool.Name == "GodHuman" then
+                return true
+            end
+        end
+    end
+    -- Check Melee slot (Data.Melee)
+    local data = player:FindFirstChild("Data")
+    if data and data:FindFirstChild("Melee") then
+        local melee = data.Melee.Value
+        if melee == "God Human" or melee == "GodHuman" then
+            return true
+        end
+    end
+    -- Check Inventory
+    if data and data:FindFirstChild("Inventory") then
+        for _, inv in ipairs(data.Inventory:GetChildren()) do
+            if inv.Name == "God Human" or inv.Name == "GodHuman" then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+-- Hàm kiểm tra item trong kho đồ (Inventory)
+local function hasInInventory(inventory, itemName)
+    if not inventory then return false end
+    for _, inv in ipairs(inventory:GetChildren()) do
+        if inv.Name == itemName then return true end
+    end
+    return false
+end
+
+-- Hàm cập nhật trạng thái item
+local function updateItems()
+    local player = game.Players.LocalPlayer
+    local backpack = player:FindFirstChild("Backpack")
+    local character = player.Character
+    local data = player:FindFirstChild("Data")
+    local inventory = data and data:FindFirstChild("Inventory")
+    local items = {
+        {name = "God Human", check = function() return hasGodHuman(player) end},
+        {name = "Cursed Dual Katana"},
+        {name = "Skull Guitar"},
+        {name = "Mirror Fractal"},
+        {name = "Valkyrie Helm"}
+    }
+    local status = {}
+    for _, item in ipairs(items) do
+        local has = false
+        if item.check then
+            has = item.check()
+        else
+            -- Check Backpack
+            if backpack and backpack:FindFirstChild(item.name) then has = true end
+            -- Check Character
+            if not has and character and character:FindFirstChild(item.name) then has = true end
+            -- Check Inventory
+            if not has and hasInInventory(inventory, item.name) then has = true end
+        end
+        table.insert(status, (has and "✅" or "❌") .. " " .. item.name)
+    end
+    ItemLabel.Text = "🎒 Item: " .. table.concat(status, " | ")
+end
+
 -- Hàm cập nhật trạng thái % full moon 
 local function updateFullMoon()
     local moon = game:GetService("Lighting").Sky.MoonTextureId
@@ -117,78 +197,6 @@ local function updateMission()
     MissionLabel.Text = "📋 Nhiệm vụ: " .. quest
 end
 
--- Hàm kiểm tra God Human (Melee)
-local function hasGodHuman(player)
-    -- Check Backpack
-    local backpack = player:FindFirstChild("Backpack")
-    if backpack then
-        for _, tool in ipairs(backpack:GetChildren()) do
-            if tool.Name == "God Human" or tool.Name == "GodHuman" then
-                return true
-            end
-        end
-    end
-    -- Check Character
-    local character = player.Character
-    if character then
-        for _, tool in ipairs(character:GetChildren()) do
-            if tool.Name == "God Human" or tool.Name == "GodHuman" then
-                return true
-            end
-        end
-    end
-    -- Check Melee slot (nhiều game sẽ có giá trị Melee trong Data)
-    local data = player:FindFirstChild("Data")
-    if data and data:FindFirstChild("Melee") then
-        local melee = data.Melee.Value
-        if melee == "God Human" or melee == "GodHuman" then
-            return true
-        end
-    end
-    return false
-end
-
--- Hàm kiểm tra item trong kho đồ (Inventory)
-local function hasInInventory(inventory, itemName)
-    if not inventory then return false end
-    for _, inv in ipairs(inventory:GetChildren()) do
-        if inv.Name == itemName then return true end
-    end
-    return false
-end
-
--- Hàm cập nhật trạng thái item
-local function updateItems()
-    local player = game.Players.LocalPlayer
-    local backpack = player:FindFirstChild("Backpack")
-    local character = player.Character
-    local data = player:FindFirstChild("Data")
-    local inventory = data and data:FindFirstChild("Inventory")
-    local items = {
-        {name = "God Human", check = function() return hasGodHuman(player) end},
-        {name = "Cursed Dual Katana"},
-        {name = "Soul Guitar"},
-        {name = "Mirror Fractal"},
-        {name = "Valkyrie Helm"}
-    }
-    local status = {}
-    for _, item in ipairs(items) do
-        local has = false
-        if item.check then
-            has = item.check()
-        else
-            -- Check Backpack
-            if backpack and backpack:FindFirstChild(item.name) then has = true end
-            -- Check Character
-            if not has and character and character:FindFirstChild(item.name) then has = true end
-            -- Check Inventory
-            if not has and hasInInventory(inventory, item.name) then has = true end
-        end
-        table.insert(status, (has and "✅" or "❌") .. " " .. item.name)
-    end
-    ItemLabel.Text = "🎒 Item: " .. table.concat(status, " | ")
-end
-
 -- Cập nhật liên tục
 updateFullMoon()
 updateMission()
@@ -199,17 +207,42 @@ game:GetService("RunService").RenderStepped:Connect(function()
     updateItems()
 end)
 
--- Nền đen toàn bộ game
+-- Nền đen toàn bộ game khi bật UI
 local Lighting = game:GetService("Lighting")
-Lighting.Ambient = Color3.new(0,0,0)
-Lighting.OutdoorAmbient = Color3.new(0,0,0)
-Lighting.Brightness = 0
-Lighting.ColorShift_Bottom = Color3.new(0,0,0)
-Lighting.ColorShift_Top = Color3.new(0,0,0)
-Lighting.FogEnd = 100
-Lighting.FogStart = 0
-Lighting.FogColor = Color3.new(0,0,0)
-Lighting.ExposureCompensation = -10
+local original = {
+    Ambient = Lighting.Ambient,
+    OutdoorAmbient = Lighting.OutdoorAmbient,
+    Brightness = Lighting.Brightness,
+    ColorShift_Bottom = Lighting.ColorShift_Bottom,
+    ColorShift_Top = Lighting.ColorShift_Top,
+    FogEnd = Lighting.FogEnd,
+    FogStart = Lighting.FogStart,
+    FogColor = Lighting.FogColor,
+    ExposureCompensation = Lighting.ExposureCompensation
+}
+local function setDark()
+    Lighting.Ambient = Color3.new(0,0,0)
+    Lighting.OutdoorAmbient = Color3.new(0,0,0)
+    Lighting.Brightness = 0
+    Lighting.ColorShift_Bottom = Color3.new(0,0,0)
+    Lighting.ColorShift_Top = Color3.new(0,0,0)
+    Lighting.FogEnd = 100
+    Lighting.FogStart = 0
+    Lighting.FogColor = Color3.new(0,0,0)
+    Lighting.ExposureCompensation = -10
+end
+local function restoreLighting()
+    Lighting.Ambient = original.Ambient
+    Lighting.OutdoorAmbient = original.OutdoorAmbient
+    Lighting.Brightness = original.Brightness
+    Lighting.ColorShift_Bottom = original.ColorShift_Bottom
+    Lighting.ColorShift_Top = original.ColorShift_Top
+    Lighting.FogEnd = original.FogEnd
+    Lighting.FogStart = original.FogStart
+    Lighting.FogColor = original.FogColor
+    Lighting.ExposureCompensation = original.ExposureCompensation
+end
+setDark()
 
 -- Toggle bật/tắt ui bằng phím B
 local togle_up = true
@@ -218,11 +251,11 @@ game:GetService("UserInputService").InputBegan:Connect(function(input, isTyping)
         if input.KeyCode == Enum.KeyCode.B then
             if togle_up then
                 LionHub.Enabled = false
-                Lighting.ExposureCompensation = 0
+                restoreLighting()
                 togle_up = false
             else
                 LionHub.Enabled = true
-                Lighting.ExposureCompensation = -10
+                setDark()
                 togle_up = true
             end
         end
