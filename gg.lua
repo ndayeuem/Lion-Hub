@@ -117,6 +117,46 @@ local function updateMission()
     MissionLabel.Text = "📋 Nhiệm vụ: " .. quest
 end
 
+-- Hàm kiểm tra God Human (Melee)
+local function hasGodHuman(player)
+    -- Check Backpack
+    local backpack = player:FindFirstChild("Backpack")
+    if backpack then
+        for _, tool in ipairs(backpack:GetChildren()) do
+            if tool.Name == "God Human" or tool.Name == "GodHuman" then
+                return true
+            end
+        end
+    end
+    -- Check Character
+    local character = player.Character
+    if character then
+        for _, tool in ipairs(character:GetChildren()) do
+            if tool.Name == "God Human" or tool.Name == "GodHuman" then
+                return true
+            end
+        end
+    end
+    -- Check Melee slot (nhiều game sẽ có giá trị Melee trong Data)
+    local data = player:FindFirstChild("Data")
+    if data and data:FindFirstChild("Melee") then
+        local melee = data.Melee.Value
+        if melee == "God Human" or melee == "GodHuman" then
+            return true
+        end
+    end
+    return false
+end
+
+-- Hàm kiểm tra item trong kho đồ (Inventory)
+local function hasInInventory(inventory, itemName)
+    if not inventory then return false end
+    for _, inv in ipairs(inventory:GetChildren()) do
+        if inv.Name == itemName then return true end
+    end
+    return false
+end
+
 -- Hàm cập nhật trạng thái item
 local function updateItems()
     local player = game.Players.LocalPlayer
@@ -125,26 +165,26 @@ local function updateItems()
     local data = player:FindFirstChild("Data")
     local inventory = data and data:FindFirstChild("Inventory")
     local items = {
-        "GodHuman",
-        "Cursed Dual Katana",
-        "Skull Guitar",
-        "Mirror Fractal",
-        "Valkyrie Helm"
+        {name = "God Human", check = function() return hasGodHuman(player) end},
+        {name = "Cursed Dual Katana"},
+        {name = "Soul Guitar"},
+        {name = "Mirror Fractal"},
+        {name = "Valkyrie Helm"}
     }
     local status = {}
     for _, item in ipairs(items) do
         local has = false
-        -- Check Backpack
-        if backpack and backpack:FindFirstChild(item) then has = true end
-        -- Check Character
-        if not has and character and character:FindFirstChild(item) then has = true end
-        -- Check Data.Inventory
-        if not has and inventory then
-            for _, inv in ipairs(inventory:GetChildren()) do
-                if inv.Name == item then has = true break end
-            end
+        if item.check then
+            has = item.check()
+        else
+            -- Check Backpack
+            if backpack and backpack:FindFirstChild(item.name) then has = true end
+            -- Check Character
+            if not has and character and character:FindFirstChild(item.name) then has = true end
+            -- Check Inventory
+            if not has and hasInInventory(inventory, item.name) then has = true end
         end
-        table.insert(status, (has and "✅" or "❌") .. " " .. item)
+        table.insert(status, (has and "✅" or "❌") .. " " .. item.name)
     end
     ItemLabel.Text = "🎒 Item: " .. table.concat(status, " | ")
 end
