@@ -16,13 +16,13 @@ LionHub.Name = "Lion Hub"
 LionHub.Parent = game:GetService("CoreGui")
 LionHub.Enabled = true
 
--- ui kín màn
+-- UI full màn hình, màu đen hoàn toàn
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
 MainFrame.Parent = LionHub
 MainFrame.Size = UDim2.new(1, 0, 1, 0)
 MainFrame.Position = UDim2.new(0, 0, 0, 0)
-MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 MainFrame.BackgroundTransparency = 0
 MainFrame.BorderSizePixel = 0
 
@@ -30,7 +30,7 @@ local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 0)
 corner.Parent = MainFrame
 
--- logo lion
+-- Logo Discord
 local Logo = Instance.new("ImageLabel")
 Logo.Name = "Logo"
 Logo.Parent = MainFrame
@@ -54,11 +54,11 @@ Header.TextXAlignment = Enum.TextXAlignment.Center
 -- Check % full moon
 local FullMoonLabel = Instance.new("TextLabel")
 FullMoonLabel.Parent = MainFrame
-FullMoonLabel.Size = UDim2.new(0, 600, 0, 60)
-FullMoonLabel.Position = UDim2.new(0.5, -300, 0.5, -80)
+FullMoonLabel.Size = UDim2.new(0, 500, 0, 48)
+FullMoonLabel.Position = UDim2.new(0.5, -250, 0.5, -60)
 FullMoonLabel.BackgroundTransparency = 1
 FullMoonLabel.Font = Enum.Font.GothamBold
-FullMoonLabel.TextSize = 40
+FullMoonLabel.TextSize = 36
 FullMoonLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 FullMoonLabel.TextStrokeTransparency = 0.7
 FullMoonLabel.Text = "🌕 Full Moon: Đang kiểm tra..."
@@ -66,23 +66,23 @@ FullMoonLabel.Text = "🌕 Full Moon: Đang kiểm tra..."
 -- Check nhiệm vụ đang làm
 local MissionLabel = Instance.new("TextLabel")
 MissionLabel.Parent = MainFrame
-MissionLabel.Size = UDim2.new(0, 600, 0, 40)
-MissionLabel.Position = UDim2.new(0.5, -300, 0.5, -20)
+MissionLabel.Size = UDim2.new(0, 500, 0, 32)
+MissionLabel.Position = UDim2.new(0.5, -250, 0.5, 0)
 MissionLabel.BackgroundTransparency = 1
 MissionLabel.Font = Enum.Font.GothamBold
-MissionLabel.TextSize = 32
+MissionLabel.TextSize = 26
 MissionLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 MissionLabel.TextStrokeTransparency = 0.7
 MissionLabel.Text = "📋 Nhiệm vụ: Đang kiểm tra..."
 
--- Check item
+-- Check item nhỏ gọn
 local ItemLabel = Instance.new("TextLabel")
 ItemLabel.Parent = MainFrame
-ItemLabel.Size = UDim2.new(0, 800, 0, 40)
-ItemLabel.Position = UDim2.new(0.5, -400, 0.5, 30)
+ItemLabel.Size = UDim2.new(0, 500, 0, 28)
+ItemLabel.Position = UDim2.new(0.5, -250, 0.5, 36)
 ItemLabel.BackgroundTransparency = 1
 ItemLabel.Font = Enum.Font.GothamBold
-ItemLabel.TextSize = 32
+ItemLabel.TextSize = 22
 ItemLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 ItemLabel.TextStrokeTransparency = 0.7
 ItemLabel.Text = "🎒 Item: Đang kiểm tra..."
@@ -109,9 +109,11 @@ end
 local function updateMission()
     local player = game.Players.LocalPlayer
     local quest = "Không có"
-    if player.PlayerGui:FindFirstChild("Main") and player.PlayerGui.Main:FindFirstChild("Quest") and player.PlayerGui.Main.Quest.Visible then
-        quest = player.PlayerGui.Main.Quest.Container.Title.Text
-    end
+    pcall(function()
+        if player.PlayerGui:FindFirstChild("Main") and player.PlayerGui.Main:FindFirstChild("Quest") and player.PlayerGui.Main.Quest.Visible then
+            quest = player.PlayerGui.Main.Quest.Container.Title.Text
+        end
+    end)
     MissionLabel.Text = "📋 Nhiệm vụ: " .. quest
 end
 
@@ -142,7 +144,7 @@ local function updateItems()
                 if inv.Name == item then has = true break end
             end
         end
-        table.insert(status, item .. ": " .. (has and "✅" or "❌"))
+        table.insert(status, (has and "✅" or "❌") .. " " .. item)
     end
     ItemLabel.Text = "🎒 Item: " .. table.concat(status, " | ")
 end
@@ -157,7 +159,7 @@ game:GetService("RunService").RenderStepped:Connect(function()
     updateItems()
 end)
 
--- Nền đen
+-- Nền đen toàn bộ game
 local Lighting = game:GetService("Lighting")
 Lighting.Ambient = Color3.new(0,0,0)
 Lighting.OutdoorAmbient = Color3.new(0,0,0)
@@ -169,7 +171,7 @@ Lighting.FogStart = 0
 Lighting.FogColor = Color3.new(0,0,0)
 Lighting.ExposureCompensation = -10
 
--- Toggle bật/tắt ui B
+-- Toggle bật/tắt ui bằng phím B
 local togle_up = true
 game:GetService("UserInputService").InputBegan:Connect(function(input, isTyping)
     if not isTyping then
