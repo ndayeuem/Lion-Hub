@@ -64,6 +64,19 @@ PlayerStatus.TextStrokeTransparency = 0.7
 PlayerStatus.TextXAlignment = Enum.TextXAlignment.Center
 PlayerStatus.Text = "👤 Name: ... | Level: ..."
 
+-- Status Beli và Fragments
+local MoneyStatus = Instance.new("TextLabel")
+MoneyStatus.Parent = MainFrame
+MoneyStatus.Size = UDim2.new(1, 0, 0, 28)
+MoneyStatus.Position = UDim2.new(0, 0, 0, 120)
+MoneyStatus.BackgroundTransparency = 1
+MoneyStatus.Font = Enum.Font.GothamBold
+MoneyStatus.TextSize = 22
+MoneyStatus.TextColor3 = Color3.fromRGB(255, 255, 255)
+MoneyStatus.TextStrokeTransparency = 0.7
+MoneyStatus.TextXAlignment = Enum.TextXAlignment.Center
+MoneyStatus.Text = "💰 Beli: ... | 🔹 F: ..."
+
 -- Check % full moon
 local FullMoonLabel = Instance.new("TextLabel")
 FullMoonLabel.Parent = MainFrame
@@ -139,11 +152,21 @@ local function hasGodHuman(player)
     return false
 end
 
--- Hàm kiểm tra item trong kho đồ (Inventory)
-local function hasInInventory(inventory, itemName)
-    if not inventory then return false end
-    for _, inv in ipairs(inventory:GetChildren()) do
-        if inv.Name == itemName then return true end
+-- Hàm kiểm tra item trong kho đồ (Inventory, Backpack, Character)
+local function hasItem(player, itemName)
+    local data = player:FindFirstChild("Data")
+    local backpack = player:FindFirstChild("Backpack")
+    local character = player.Character
+    local inventory = data and data:FindFirstChild("Inventory")
+    -- Check Backpack
+    if backpack and backpack:FindFirstChild(itemName) then return true end
+    -- Check Character
+    if character and character:FindFirstChild(itemName) then return true end
+    -- Check Inventory
+    if inventory then
+        for _, inv in ipairs(inventory:GetChildren()) do
+            if inv.Name == itemName then return true end
+        end
     end
     return false
 end
@@ -151,29 +174,18 @@ end
 -- Hàm cập nhật trạng thái item
 local function updateItems()
     local player = game.Players.LocalPlayer
-    local backpack = player:FindFirstChild("Backpack")
-    local character = player.Character
-    local data = player:FindFirstChild("Data")
-    local inventory = data and data:FindFirstChild("Inventory")
     local items = {
         {name = "God Human", check = function() return hasGodHuman(player) end},
-        {name = "Cursed Dual Katana"},
-        {name = "Skull Guitar"},
-        {name = "Mirror Fractal"},
-        {name = "Valkyrie Helm"}
+        {name = "Cursed Dual Katana", check = function() return hasItem(player, "Cursed Dual Katana") end},
+        {name = "Skull Guitar", check = function() return hasItem(player, "Skull Guitar") end},
+        {name = "Mirror Fractal", check = function() return hasItem(player, "Mirror Fractal") end},
+        {name = "Valkyrie Helm", check = function() return hasItem(player, "Valkyrie Helm") end}
     }
     local status = {}
     for _, item in ipairs(items) do
         local has = false
         if item.check then
             has = item.check()
-        else
-            -- Check Backpack
-            if backpack and backpack:FindFirstChild(item.name) then has = true end
-            -- Check Character
-            if not has and character and character:FindFirstChild(item.name) then has = true end
-            -- Check Inventory
-            if not has and hasInInventory(inventory, item.name) then has = true end
         end
         table.insert(status, (has and "✅" or "❌") .. " " .. item.name)
     end
@@ -210,16 +222,27 @@ local function updateMission()
     MissionLabel.Text = "📋 Nhiệm vụ: " .. quest
 end
 
--- Hàm cập nhật tên và level người chơi
+-- Hàm cập nhật tên, level, beli, fragments
 local function updatePlayerStatus()
     local player = game.Players.LocalPlayer
     local name = player.Name
     local level = "N/A"
+    local beli = "N/A"
+    local fragments = "N/A"
     local data = player:FindFirstChild("Data")
-    if data and data:FindFirstChild("Level") then
-        level = tostring(data.Level.Value)
+    if data then
+        if data:FindFirstChild("Level") then
+            level = tostring(data.Level.Value)
+        end
+        if data:FindFirstChild("Beli") then
+            beli = tostring(data.Beli.Value)
+        end
+        if data:FindFirstChild("Fragments") then
+            fragments = tostring(data.Fragments.Value)
+        end
     end
     PlayerStatus.Text = "👤 Name: " .. name .. " | Level: " .. level
+    MoneyStatus.Text = "💰 Beli: " .. beli .. " | 🔹 F: " .. fragments
 end
 
 -- Cập nhật liên tục
