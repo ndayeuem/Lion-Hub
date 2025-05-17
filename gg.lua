@@ -55,7 +55,7 @@ Header.TextXAlignment = Enum.TextXAlignment.Center
 local PlayerStatus = Instance.new("TextLabel")
 PlayerStatus.Parent = MainFrame
 PlayerStatus.Size = UDim2.new(1, 0, 0, 32)
-PlayerStatus.Position = UDim2.new(0, 0, 0, 88)
+PlayerStatus.Position = UDim2.new(0, 0, 0, 104)
 PlayerStatus.BackgroundTransparency = 1
 PlayerStatus.Font = Enum.Font.GothamBold
 PlayerStatus.TextSize = 26
@@ -64,18 +64,19 @@ PlayerStatus.TextStrokeTransparency = 0.7
 PlayerStatus.TextXAlignment = Enum.TextXAlignment.Center
 PlayerStatus.Text = "👤 Name: ... | Level: ..."
 
--- Status Beli và Fragments
+-- Status Beli và Fragments (F màu tím)
 local MoneyStatus = Instance.new("TextLabel")
 MoneyStatus.Parent = MainFrame
 MoneyStatus.Size = UDim2.new(1, 0, 0, 28)
-MoneyStatus.Position = UDim2.new(0, 0, 0, 120)
+MoneyStatus.Position = UDim2.new(0, 0, 0, 136)
 MoneyStatus.BackgroundTransparency = 1
 MoneyStatus.Font = Enum.Font.GothamBold
 MoneyStatus.TextSize = 22
 MoneyStatus.TextColor3 = Color3.fromRGB(255, 255, 255)
 MoneyStatus.TextStrokeTransparency = 0.7
 MoneyStatus.TextXAlignment = Enum.TextXAlignment.Center
-MoneyStatus.Text = "💰 Beli: ... | 🔹 F: ..."
+MoneyStatus.RichText = true
+MoneyStatus.Text = '💰 Beli: ... | <font color="#b400ff">F</font>: ...'
 
 -- Check % full moon
 local FullMoonLabel = Instance.new("TextLabel")
@@ -89,11 +90,38 @@ FullMoonLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 FullMoonLabel.TextStrokeTransparency = 0.7
 FullMoonLabel.Text = "🌕 Full Moon: Đang kiểm tra..."
 
+-- Thời gian trong server
+local TimeLabel = Instance.new("TextLabel")
+TimeLabel.Parent = MainFrame
+TimeLabel.Size = UDim2.new(0, 500, 0, 28)
+TimeLabel.Position = UDim2.new(0.5, -250, 0.5, -12)
+TimeLabel.BackgroundTransparency = 1
+TimeLabel.Font = Enum.Font.GothamBold
+TimeLabel.TextSize = 22
+TimeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TimeLabel.TextStrokeTransparency = 0.7
+TimeLabel.TextXAlignment = Enum.TextXAlignment.Center
+TimeLabel.Text = "⏰ Time in server: ..."
+
+-- Check Sea status
+local SeaLabel = Instance.new("TextLabel")
+SeaLabel.Parent = MainFrame
+SeaLabel.Size = UDim2.new(0, 500, 0, 28)
+SeaLabel.Position = UDim2.new(0.5, -250, 0.5, 20)
+SeaLabel.BackgroundTransparency = 1
+SeaLabel.Font = Enum.Font.GothamBold
+SeaLabel.TextSize = 22
+SeaLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+SeaLabel.TextStrokeTransparency = 0.7
+SeaLabel.TextXAlignment = Enum.TextXAlignment.Center
+SeaLabel.RichText = true
+SeaLabel.Text = "🌊 Sea: ..."
+
 -- Check nhiệm vụ đang làm
 local MissionLabel = Instance.new("TextLabel")
 MissionLabel.Parent = MainFrame
 MissionLabel.Size = UDim2.new(0, 500, 0, 32)
-MissionLabel.Position = UDim2.new(0.5, -250, 0.5, 0)
+MissionLabel.Position = UDim2.new(0.5, -250, 0.5, 52)
 MissionLabel.BackgroundTransparency = 1
 MissionLabel.Font = Enum.Font.GothamBold
 MissionLabel.TextSize = 26
@@ -105,7 +133,7 @@ MissionLabel.Text = "📋 Nhiệm vụ: Đang kiểm tra..."
 local ItemLabel = Instance.new("TextLabel")
 ItemLabel.Parent = MainFrame
 ItemLabel.Size = UDim2.new(0, 500, 0, 28)
-ItemLabel.Position = UDim2.new(0.5, -250, 0.5, 36)
+ItemLabel.Position = UDim2.new(0.5, -250, 0.5, 88)
 ItemLabel.BackgroundTransparency = 1
 ItemLabel.Font = Enum.Font.GothamBold
 ItemLabel.TextSize = 22
@@ -210,6 +238,36 @@ local function updateFullMoon()
     FullMoonLabel.Text = "🌕 Full Moon: " .. percent
 end
 
+-- Hàm cập nhật thời gian trong server
+local function updateTimeLabel()
+    local t = math.floor(workspace.DistributedGameTime)
+    local h = math.floor(t / 3600)
+    local m = math.floor((t % 3600) / 60)
+    local s = t % 60
+    TimeLabel.Text = string.format("⏰ Time in server: %02d:%02d:%02d", h, m, s)
+end
+
+-- Hàm cập nhật trạng thái Sea
+local function updateSeaLabel()
+    local player = game.Players.LocalPlayer
+    local data = player:FindFirstChild("Data")
+    local sea = 1
+    if placeId == 2753915549 then sea = 1 end
+    if placeId == 4442272183 then sea = 2 end
+    if placeId == 7449423635 then sea = 3 end
+
+    -- Check đã qua Sea nào (dựa vào level hoặc có thể dựa vào giá trị Data)
+    local level = 0
+    if data and data:FindFirstChild("Level") then
+        level = tonumber(data.Level.Value)
+    end
+    -- Mặc định: Sea 1 luôn ✅, Sea 2 nếu đã qua level 700, Sea 3 nếu đã qua level 1500
+    local sea1 = '<font color="#00ff00">✅</font> Sea 1'
+    local sea2 = (level >= 700 or sea >= 2) and '<font color="#00ff00">✅</font> Sea 2' or '<font color="#ff0000">❌</font> Sea 2'
+    local sea3 = (level >= 1500 or sea == 3) and '<font color="#00ff00">✅</font> Sea 3' or '<font color="#ff0000">❌</font> Sea 3'
+    SeaLabel.Text = "🌊 Sea: " .. sea1 .. " | " .. sea2 .. " | " .. sea3
+end
+
 -- Hàm cập nhật nhiệm vụ đang làm
 local function updateMission()
     local player = game.Players.LocalPlayer
@@ -242,16 +300,20 @@ local function updatePlayerStatus()
         end
     end
     PlayerStatus.Text = "👤 Name: " .. name .. " | Level: " .. level
-    MoneyStatus.Text = "💰 Beli: " .. beli .. " | 🔹 F: " .. fragments
+    MoneyStatus.Text = '💰 Beli: ' .. beli .. ' | <font color="#b400ff">F</font>: ' .. fragments
 end
 
 -- Cập nhật liên tục
 updateFullMoon()
+updateTimeLabel()
+updateSeaLabel()
 updateMission()
 updateItems()
 updatePlayerStatus()
 game:GetService("RunService").RenderStepped:Connect(function()
     updateFullMoon()
+    updateTimeLabel()
+    updateSeaLabel()
     updateMission()
     updateItems()
     updatePlayerStatus()
