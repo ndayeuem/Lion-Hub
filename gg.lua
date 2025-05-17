@@ -51,6 +51,19 @@ Header.TextSize = 48
 Header.TextColor3 = Color3.fromRGB(255, 255, 255)
 Header.TextXAlignment = Enum.TextXAlignment.Center
 
+-- Status tên và level người chơi
+local PlayerStatus = Instance.new("TextLabel")
+PlayerStatus.Parent = MainFrame
+PlayerStatus.Size = UDim2.new(1, 0, 0, 32)
+PlayerStatus.Position = UDim2.new(0, 0, 0, 88)
+PlayerStatus.BackgroundTransparency = 1
+PlayerStatus.Font = Enum.Font.GothamBold
+PlayerStatus.TextSize = 26
+PlayerStatus.TextColor3 = Color3.fromRGB(255, 255, 255)
+PlayerStatus.TextStrokeTransparency = 0.7
+PlayerStatus.TextXAlignment = Enum.TextXAlignment.Center
+PlayerStatus.Text = "👤 Name: ... | Level: ..."
+
 -- Check % full moon
 local FullMoonLabel = Instance.new("TextLabel")
 FullMoonLabel.Parent = MainFrame
@@ -89,6 +102,14 @@ ItemLabel.Text = "🎒 Item: Đang kiểm tra..."
 
 -- Hàm kiểm tra God Human (mọi trường hợp)
 local function hasGodHuman(player)
+    -- Check Data.Melee
+    local data = player:FindFirstChild("Data")
+    if data and data:FindFirstChild("Melee") then
+        local melee = data.Melee.Value
+        if melee == "God Human" or melee == "GodHuman" then
+            return true
+        end
+    end
     -- Check Backpack
     local backpack = player:FindFirstChild("Backpack")
     if backpack then
@@ -105,14 +126,6 @@ local function hasGodHuman(player)
             if tool.Name == "God Human" or tool.Name == "GodHuman" then
                 return true
             end
-        end
-    end
-    -- Check Melee slot (Data.Melee)
-    local data = player:FindFirstChild("Data")
-    if data and data:FindFirstChild("Melee") then
-        local melee = data.Melee.Value
-        if melee == "God Human" or melee == "GodHuman" then
-            return true
         end
     end
     -- Check Inventory
@@ -197,14 +210,28 @@ local function updateMission()
     MissionLabel.Text = "📋 Nhiệm vụ: " .. quest
 end
 
+-- Hàm cập nhật tên và level người chơi
+local function updatePlayerStatus()
+    local player = game.Players.LocalPlayer
+    local name = player.Name
+    local level = "N/A"
+    local data = player:FindFirstChild("Data")
+    if data and data:FindFirstChild("Level") then
+        level = tostring(data.Level.Value)
+    end
+    PlayerStatus.Text = "👤 Name: " .. name .. " | Level: " .. level
+end
+
 -- Cập nhật liên tục
 updateFullMoon()
 updateMission()
 updateItems()
+updatePlayerStatus()
 game:GetService("RunService").RenderStepped:Connect(function()
     updateFullMoon()
     updateMission()
     updateItems()
+    updatePlayerStatus()
 end)
 
 -- Nền đen toàn bộ game khi bật UI
