@@ -125,9 +125,9 @@ local function updateItems()
     local data = player:FindFirstChild("Data")
     local inventory = data and data:FindFirstChild("Inventory")
     local items = {
-        "God Human",
+        "GodHuman",
         "Cursed Dual Katana",
-        "Soul Guitar",
+        "Skull Guitar",
         "Mirror Fractal",
         "Valkyrie Helm"
     }
