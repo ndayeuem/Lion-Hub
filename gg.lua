@@ -16,7 +16,7 @@ LionHub.Name = "Lion Hub"
 LionHub.Parent = game:GetService("CoreGui")
 LionHub.Enabled = true
 
--- Main Frame full màn hình, không viền vàng
+-- ui kín màn
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
 MainFrame.Parent = LionHub
@@ -30,7 +30,7 @@ local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 0)
 corner.Parent = MainFrame
 
--- Logo Discord ở góc trái trên
+-- logo lion
 local Logo = Instance.new("ImageLabel")
 Logo.Name = "Logo"
 Logo.Parent = MainFrame
@@ -51,19 +51,43 @@ Header.TextSize = 48
 Header.TextColor3 = Color3.fromRGB(255, 255, 255)
 Header.TextXAlignment = Enum.TextXAlignment.Center
 
--- Chỉ giữ lại check % Full Moon, căn giữa màn hình
+-- Check % full moon
 local FullMoonLabel = Instance.new("TextLabel")
 FullMoonLabel.Parent = MainFrame
-FullMoonLabel.Size = UDim2.new(0, 600, 0, 80)
-FullMoonLabel.Position = UDim2.new(0.5, -300, 0.5, -40)
+FullMoonLabel.Size = UDim2.new(0, 600, 0, 60)
+FullMoonLabel.Position = UDim2.new(0.5, -300, 0.5, -80)
 FullMoonLabel.BackgroundTransparency = 1
 FullMoonLabel.Font = Enum.Font.GothamBold
-FullMoonLabel.TextSize = 48
+FullMoonLabel.TextSize = 40
 FullMoonLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 FullMoonLabel.TextStrokeTransparency = 0.7
 FullMoonLabel.Text = "🌕 Full Moon: Đang kiểm tra..."
 
--- Hàm cập nhật trạng thái % Full Moon (không còn thời gian)
+-- Check nhiệm vụ đang làm
+local MissionLabel = Instance.new("TextLabel")
+MissionLabel.Parent = MainFrame
+MissionLabel.Size = UDim2.new(0, 600, 0, 40)
+MissionLabel.Position = UDim2.new(0.5, -300, 0.5, -20)
+MissionLabel.BackgroundTransparency = 1
+MissionLabel.Font = Enum.Font.GothamBold
+MissionLabel.TextSize = 32
+MissionLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+MissionLabel.TextStrokeTransparency = 0.7
+MissionLabel.Text = "📋 Nhiệm vụ: Đang kiểm tra..."
+
+-- Check item
+local ItemLabel = Instance.new("TextLabel")
+ItemLabel.Parent = MainFrame
+ItemLabel.Size = UDim2.new(0, 800, 0, 40)
+ItemLabel.Position = UDim2.new(0.5, -400, 0.5, 30)
+ItemLabel.BackgroundTransparency = 1
+ItemLabel.Font = Enum.Font.GothamBold
+ItemLabel.TextSize = 32
+ItemLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+ItemLabel.TextStrokeTransparency = 0.7
+ItemLabel.Text = "🎒 Item: Đang kiểm tra..."
+
+-- Hàm cập nhật trạng thái % full moon 
 local function updateFullMoon()
     local moon = game:GetService("Lighting").Sky.MoonTextureId
     local percent = "0%"
@@ -81,10 +105,59 @@ local function updateFullMoon()
     FullMoonLabel.Text = "🌕 Full Moon: " .. percent
 end
 
-updateFullMoon()
-game:GetService("RunService").RenderStepped:Connect(updateFullMoon)
+-- Hàm cập nhật nhiệm vụ đang làm
+local function updateMission()
+    local player = game.Players.LocalPlayer
+    local quest = "Không có"
+    if player.PlayerGui:FindFirstChild("Main") and player.PlayerGui.Main:FindFirstChild("Quest") and player.PlayerGui.Main.Quest.Visible then
+        quest = player.PlayerGui.Main.Quest.Container.Title.Text
+    end
+    MissionLabel.Text = "📋 Nhiệm vụ: " .. quest
+end
 
--- Đổi toàn bộ màu nền game thành đen
+-- Hàm cập nhật trạng thái item
+local function updateItems()
+    local player = game.Players.LocalPlayer
+    local backpack = player:FindFirstChild("Backpack")
+    local character = player.Character
+    local data = player:FindFirstChild("Data")
+    local inventory = data and data:FindFirstChild("Inventory")
+    local items = {
+        "God Human",
+        "Cursed Dual Katana",
+        "Soul Guitar",
+        "Mirror Fractal",
+        "Valkyrie Helm"
+    }
+    local status = {}
+    for _, item in ipairs(items) do
+        local has = false
+        -- Check Backpack
+        if backpack and backpack:FindFirstChild(item) then has = true end
+        -- Check Character
+        if not has and character and character:FindFirstChild(item) then has = true end
+        -- Check Data.Inventory
+        if not has and inventory then
+            for _, inv in ipairs(inventory:GetChildren()) do
+                if inv.Name == item then has = true break end
+            end
+        end
+        table.insert(status, item .. ": " .. (has and "✅" or "❌"))
+    end
+    ItemLabel.Text = "🎒 Item: " .. table.concat(status, " | ")
+end
+
+-- Cập nhật liên tục
+updateFullMoon()
+updateMission()
+updateItems()
+game:GetService("RunService").RenderStepped:Connect(function()
+    updateFullMoon()
+    updateMission()
+    updateItems()
+end)
+
+-- Nền đen
 local Lighting = game:GetService("Lighting")
 Lighting.Ambient = Color3.new(0,0,0)
 Lighting.OutdoorAmbient = Color3.new(0,0,0)
@@ -96,7 +169,7 @@ Lighting.FogStart = 0
 Lighting.FogColor = Color3.new(0,0,0)
 Lighting.ExposureCompensation = -10
 
--- Toggle bật/tắt UI và nền đen bằng phím B
+-- Toggle bật/tắt ui B
 local togle_up = true
 game:GetService("UserInputService").InputBegan:Connect(function(input, isTyping)
     if not isTyping then
