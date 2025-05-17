@@ -73,7 +73,7 @@ if getgenv().Deleted_Ui then
     gradient.Parent = border
 
     -- Clone các label chính
-    local function cloneLabel(frameName, text, pos, size)
+    local function cloneLabel(frameName, text, pos, size, color)
         local frame = Instance.new("Frame")
         frame.Name = frameName
         frame.Parent = Hiru_Hub
@@ -83,7 +83,7 @@ if getgenv().Deleted_Ui then
         frame.BackgroundTransparency = 1
         local frag = game:GetService("Players").LocalPlayer.PlayerGui.Main.Fragments:Clone()
         frag.Parent = frame
-        frag.TextColor3 = Color3.fromRGB(0, 0, 0)
+        frag.TextColor3 = color or Color3.fromRGB(0, 0, 0)
         frag.Text = text
         frag.Size = size
         frag.TextXAlignment = 'Center'
@@ -92,90 +92,60 @@ if getgenv().Deleted_Ui then
         return frame
     end
 
-    cloneLabel("Level", "Lion Hub Kaitun", UDim2.new(0.5, 0, -0.2, 0), UDim2.new(1, 0, 0, 40))
+    cloneLabel("Level", "Switch Hub", UDim2.new(0.5, 0, -0.2, 0), UDim2.new(1, 0, 0, 40))
     cloneLabel("Text2", "", UDim2.new(0.5, 0, -0.1, 0), UDim2.new(1, 0, 0, 25))
     cloneLabel("Text", '( '..game.Players.LocalPlayer.Name..' )', UDim2.new(0.5, 0, 0.14, 0), UDim2.new(1, 0, 0, 25))
     cloneLabel("Text3", 'Status: Farm Level.', UDim2.new(0.5, 0, 0.22, 0), UDim2.new(1, 0, 0, 28))
     cloneLabel("Text5", '...', UDim2.new(0.5, 0, 0.38, 0), UDim2.new(1, 0, 0, 25))
     cloneLabel("Text4", '...', UDim2.new(0.5, 0, 0.47, 0), UDim2.new(1, 0, 0, 35))
-    cloneLabel("Text6", '🌕 75% ('..tostring(game:GetService("Lighting").TimeOfDay)..')', UDim2.new(0.5, 0, -0.03, 0), UDim2.new(1, 0, 0, 25))
+    cloneLabel("Text6", '🌕 75% ('..tostring(game:GetService("Lighting").TimeOfDay)..')', UDim2.new(0.5, 0, -0.03, 0), UDim2.new(1, 0, 0, 25), Color3.fromRGB(255,140,0))
 
-    -- Check Item Section (icon)
-    local ItemsFrame = Instance.new("Frame")
-    ItemsFrame.Parent = Hiru_Hub
-    ItemsFrame.Size = UDim2.new(0, 350, 0, 160)
-    ItemsFrame.Position = UDim2.new(0.5, -175, 0.8, 0)
-    ItemsFrame.BackgroundTransparency = 1
-
-    local ItemsLayout = Instance.new("UIListLayout")
-    ItemsLayout.Parent = ItemsFrame
-    ItemsLayout.Padding = UDim.new(0, 8)
-
-    local ItemIcons = {
-        ["God Human"] = "rbxassetid://16061933936",
-        ["Cursed Dual Katana"] = "rbxassetid://16061934013",
-        ["Soul Guitar"] = "rbxassetid://16061934061",
-        ["Mirror Fractal"] = "rbxassetid://16061934113",
-        ["Valkyrie Helm"] = "rbxassetid://16061934167"
-    }
-    local function HasItem(itemName)
-        local player = game.Players.LocalPlayer
-        local backpack = player:FindFirstChild("Backpack")
-        if backpack then
-            for _, item in ipairs(backpack:GetChildren()) do
-                if item.Name == itemName then return true end
-            end
-        end
-        local character = player.Character
-        if character then
-            for _, item in ipairs(character:GetChildren()) do
-                if item.Name == itemName then return true end
-            end
-        end
-        local data = player:FindFirstChild("Data")
-        if data then
-            for _, v in ipairs(data:GetChildren()) do
-                if v.Name == itemName and ((v.Value and v.Value ~= "" and v.Value ~= false and v.Value ~= 0) or (v:IsA("BoolValue") and v.Value)) then
-                    return true
+    spawn(function()
+        while wait(1) do
+            pcall(function()
+                if Three_World then
+                    if game:GetService("Lighting").Sky.MoonTextureId == "http://www.roblox.com/asset/?id=9709149431" then
+                        game:GetService("CoreGui")["Switch Hub"].Text6.Fragments.Text = '🌕 100% ('..tostring(game:GetService("Lighting").TimeOfDay)..')'
+                    elseif game:GetService("Lighting").Sky.MoonTextureId == "http://www.roblox.com/asset/?id=9709149052" then
+                        game:GetService("CoreGui")["Switch Hub"].Text6.Fragments.Text = '🌕 75% ('..tostring(game:GetService("Lighting").TimeOfDay)..')'
+                    elseif game:GetService("Lighting").Sky.MoonTextureId == "http://www.roblox.com/asset/?id=9709143733" then
+                        game:GetService("CoreGui")["Switch Hub"].Text6.Fragments.Text = '🌕 50% ('..tostring(game:GetService("Lighting").TimeOfDay)..')'
+                    elseif game:GetService("Lighting").Sky.MoonTextureId == "http://www.roblox.com/asset/?id=9709150401" then
+                        game:GetService("CoreGui")["Switch Hub"].Text6.Fragments.Text = '🌕 25% ('..tostring(game:GetService("Lighting").TimeOfDay)..')'
+                    elseif game:GetService("Lighting").Sky.MoonTextureId == "http://www.roblox.com/asset/?id=9709149680" then
+                        game:GetService("CoreGui")["Switch Hub"].Text6.Fragments.Text = '🌕 15% ('..tostring(game:GetService("Lighting").TimeOfDay)..')'
+                    else 
+                        game:GetService("CoreGui")["Switch Hub"].Text6.Fragments.Text = '🌕 0% ('..tostring(game:GetService("Lighting").TimeOfDay)..')'
+                    end 
+                    local scripttime=game.Workspace.DistributedGameTime
+                    local seconds = scripttime%60
+                    local minutes = math.floor(scripttime/60%60)
+                    local hours = math.floor(scripttime/3600)
+                    local tempo = string.format("%.0f Hours, %.0f Minutes, %.0f Seconds", hours ,minutes, seconds)
+                    game:GetService("CoreGui")["Switch Hub"].Text2.Fragments.Text = tempo
+                else
+                    game:GetService("CoreGui")["Switch Hub"].Text6.Fragments.Text = '🌕 0% ('..tostring(game:GetService("Lighting").TimeOfDay)..')'
+                    local scripttime=game.Workspace.DistributedGameTime
+                    local seconds = scripttime%60
+                    local minutes = math.floor(scripttime/60%60)
+                    local hours = math.floor(scripttime/3600)
+                    local tempo = string.format("%.0f Hours, %.0f Minutes, %.0f Seconds", hours ,minutes, seconds)
+                    game:GetService("CoreGui")["Switch Hub"].Text2.Fragments.Text = tempo
                 end
-            end
+            end)
         end
-        return false
-    end
-    for name, icon in pairs(ItemIcons) do
-        local itemFrame = Instance.new("Frame")
-        itemFrame.Size = UDim2.new(1, 0, 0, 28)
-        itemFrame.BackgroundTransparency = 1
-        itemFrame.Parent = ItemsFrame
+    end)
 
-        local img = Instance.new("ImageLabel")
-        img.Size = UDim2.new(0, 24, 0, 24)
-        img.Position = UDim2.new(0, 0, 0, 2)
-        img.BackgroundTransparency = 1
-        img.Image = icon
-        img.Parent = itemFrame
-
-        local label = Instance.new("TextLabel")
-        label.Size = UDim2.new(1, -30, 1, 0)
-        label.Position = UDim2.new(0, 30, 0, 0)
-        label.BackgroundTransparency = 1
-        label.Text = name .. (HasItem(name) and " ✓" or " ✗")
-        label.Font = Enum.Font.Gotham
-        label.TextSize = 16
-        label.TextColor3 = Color3.fromRGB(0, 0, 0)
-        label.TextXAlignment = Enum.TextXAlignment.Left
-        label.Parent = itemFrame
-    end
-
-    -- UI nhỏ bên phải (Lion Hub, không logo, luôn bật)
+    -- UI nhỏ bên phải (giữ ToggleImgUi, không có hình)
     local Luna = Instance.new("ScreenGui")
     local ToggleFrameUi = Instance.new("Frame")
     local UICorner = Instance.new("UICorner")
+    local ToggleImgUi = Instance.new("ImageButton")
     local Uitoggle = Instance.new("TextLabel")
     local Yedhee = Instance.new("TextLabel")
     local SearchStroke = Instance.new("UIStroke")
 
-    Luna.Name = "Lion Hub"
+    Luna.Name = "SWP"
     Luna.Parent = game.CoreGui
     Luna.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
@@ -197,6 +167,20 @@ if getgenv().Deleted_Ui then
     UICorner.CornerRadius = UDim.new(0, 5)
     UICorner.Parent = ToggleFrameUi
 
+    ToggleImgUi.Name = "ToggleImgUi"
+    ToggleImgUi.Parent = ToggleFrameUi
+    ToggleImgUi.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    ToggleImgUi.BackgroundTransparency = 1
+    ToggleImgUi.Position = UDim2.new(0.045, 0, 0.125, 0)
+    ToggleImgUi.Size = UDim2.new(0, 35, 0, 35)
+    ToggleImgUi.Image = "" -- Không có hình
+
+    local togle_up = true
+    ToggleImgUi.MouseButton1Click:Connect(function()
+        togle_up = not togle_up
+        Hiru_Hub.Enabled = togle_up
+    end)
+
     Uitoggle.Name = "Uitoggle"
     Uitoggle.Parent = ToggleFrameUi
     Uitoggle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -204,7 +188,7 @@ if getgenv().Deleted_Ui then
     Uitoggle.Position = UDim2.new(0.14, 0, 0.1, 0)
     Uitoggle.Size = UDim2.new(0, 137, 0, 25)
     Uitoggle.Font = Enum.Font.GothamSemibold
-    Uitoggle.Text = "Lion Hub"
+    Uitoggle.Text = "Switch Hub Kaitun"
     Uitoggle.TextColor3 = Color3.fromRGB(0, 0, 0)
     Uitoggle.TextSize = 12.000
 
@@ -219,7 +203,13 @@ if getgenv().Deleted_Ui then
     Yedhee.TextColor3 = Color3.fromRGB(0, 255, 186)
     Yedhee.TextSize = 12.000
 
-    -- Không còn ToggleImgUi, không còn sự kiện bật/tắt UI, UI luôn bật
+    -- Xoá hoàn toàn phần check item (không còn code check item/icon)
+
+    -- Fix lại phần check status (status nhiệm vụ hoạt động bình thường, màu chữ đen)
+    function Set_Status_X(vu)
+        Hiru_Hub.Text3.Fragments.Text = vu
+        Hiru_Hub.Text3.Fragments.TextColor3 = Color3.fromRGB(0, 0, 0)
+    end
 
 else
     _G.library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Nguyenchibinh7/Heheheheh/refs/heads/main/README.md"))()
